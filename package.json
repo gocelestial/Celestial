@@ -4,7 +4,7 @@
   "description": "Minimalism for your Pocket reading list - archive all items older than specified number of days",
   "main": "index.js",
   "engines": {
-    "node": "lts/erbium",
+    "node": "^12.16.3",
     "npm": "^6.14.4"
   },
   "scripts": {
