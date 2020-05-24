@@ -1,5 +1,5 @@
 {
-  "name": "tidypockets",
+  "name": "tidypockets-api",
   "version": "0.1.0",
   "description": "Minimalism for your Pocket reading list - archive all items older than specified number of days",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hirusi/tidypockets.git"
+    "url": "git+https://github.com/hirusi/tidypockets-api.git"
   },
   "keywords": [
     "express-app",

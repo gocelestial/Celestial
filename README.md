@@ -1,4 +1,4 @@
-# tidypockets
+# tidypockets-api
 Minimalism for your Pocket reading list - archive all items older than specified number of days
 
 ## Goals
