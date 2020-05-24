@@ -7,6 +7,9 @@
     "dev:server": "nodemon dist/index.js",
     "dev:build": "tsc --watch --preserveWatchOutput",
     "dev": "run-p dev:build dev:server",
+    "prod:build": "tsc",
+    "prod:server": "node dist/index.js",
+    "start": "run-s prod:build prod:server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
