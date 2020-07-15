@@ -1,6 +1,6 @@
 {
   "name": "splisher",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "A micropub client",
   "main": "index.js",
   "engines": {
