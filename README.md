@@ -19,3 +19,9 @@ A micropub client.
     - [ ] Create
     - [ ] Delete
     - [ ] Update
+
+## Usage
+
+* `git clone git@github.com:hirusi/splisher.git`
+* `heroku apps:create [name]`
+* `git push heroku master`
