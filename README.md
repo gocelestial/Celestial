@@ -3,7 +3,7 @@ A micropub client.
 
 ## To-Do
 
-- [ ] Set up infrastructure with a welcome page
+- [x] Set up infrastructure with a welcome page
 - [ ] Set up IndieLogin
 - [ ] [Types of posts](https://indieweb.org/posts#Types_of_Posts) to be supported
     - [ ] Article

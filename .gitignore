@@ -1,2 +1,6 @@
+# Development
 node_modules
-dist
+
+# Express app dirs and files
+config
+index.js
