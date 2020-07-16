@@ -129,13 +129,20 @@ app.get("/login", csrfProtection, (req, res) => {
 });
 
 // Middleware - error handler
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) {
 	if (err.code !== "EBADCSRFTOKEN") return next(err);
 
 	// handle CSRF token errors here
 	req.session.error = "Form tampered with.";
 	res.redirect(403, "/login");
 });
+
+app.use((err, req, res, next) => {
+	if (err.code !== "ENOTFOUND") return next(err);
+
+	req.session.error = "Failed to get identity details from IndieLogin.";
+	res.redirect(500, "/login");
+})
 
 app.get("/login/verify/", csrfProtection, (req, res) => {
 	// This is where IndieLogin redirect is configured to

@@ -1,0 +1,9 @@
+@custom-media --sm-view (min-width: 640px);
+
+@custom-media --md-view (min-width: 768px);
+
+@custom-media --lg-view (min-width: 1024px);
+
+@custom-media --xl-view (min-width: 1280px);
+
+@custom-media --dm (prefers-color-scheme: dark);

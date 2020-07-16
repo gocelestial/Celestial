@@ -4,7 +4,6 @@
 		<meta charset="UTF-8" />
 		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
 		<title>{{ title }}</title>
-		<link href="/css/sakura.css" rel="stylesheet" type="text/css" />
 		<link href="/css/style.css" rel="stylesheet" type="text/css" />
 		<script
 			crossorigin="anonymous"
@@ -14,14 +13,22 @@
 		<script src="/js/main.js"></script>
 	</head>
 	<body>
-		<h1>
-            <a href="/">{{ title }}</a>
-		</h1>
+		<header>
+			<h1>
+				<a href="/">{{ title }}</a>
+			</h1>
 
-		{% include 'navigation' %} {% if pageTitle %}
-		<h2>{{ pageTitle }}</h2>
-		{% endif %} {% if userIdentity %}
-		<p>Logged in as {{ userIdentity }}</p>
-		{% endif %} {% block %}{% endblock %}
+			<h2>{{ pageTitle }}</h2>
+
+			{% if userIdentity %}
+			<p>Logged in as {{ userIdentity }}</p>
+			{% endif %}
+		</header>
+		<nav role="navigation">
+			{% include 'navigation' %}
+		</nav>
+		<main>
+			{% block %}{% endblock %}
+		</main>
 	</body>
 </html>

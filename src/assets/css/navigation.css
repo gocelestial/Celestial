@@ -1,0 +1,15 @@
+.navigation {
+	display: flex;
+	flex-direction: row;
+
+	@media (--lg-view) {
+        flex-direction: column;
+	}
+}
+
+.navigation__link {
+	/* Emoji */
+	& > img {
+		display: inline;
+	}
+}
