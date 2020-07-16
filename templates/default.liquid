@@ -1,11 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
-</head>
-<body>
-    {% block %}{% endblock %}
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+		<title>{{ title }}</title>
+		<link href="/css/sakura.css" rel="stylesheet" type="text/css" />
+		<link href="/css/style.css" rel="stylesheet" type="text/css" />
+		<script
+			crossorigin="anonymous"
+			integrity="sha384-avLpk7eChiSgpDvwa4N7hvg9vj6V9sfFmGHurVkPOlWUalASzcO3d2x3qcbQqhsH"
+			src="https://twemoji.maxcdn.com/v/13.0.0/twemoji.min.js"
+		></script>
+		<script src="/js/main.js"></script>
+	</head>
+	<body>
+		<h1>
+            <a href="/">{{ title }}</a>
+		</h1>
+
+		{% include 'navigation' %} {% if pageTitle %}
+		<h2>{{ pageTitle }}</h2>
+		{% endif %} {% if userIdentity %}
+		<p>Logged in as {{ userIdentity }}</p>
+		{% endif %} {% block %}{% endblock %}
+	</body>
 </html>

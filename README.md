@@ -4,7 +4,8 @@ A micropub client.
 ## To-Do
 
 - [x] Set up infrastructure with a welcome page
-- [ ] Set up IndieLogin
+- [x] Set up IndieLogin
+    - [ ] Request registration of client ID once in production
 - [ ] [Types of posts](https://indieweb.org/posts#Types_of_Posts) to be supported
     - [ ] Article
     - [ ] Note
@@ -25,3 +26,12 @@ A micropub client.
 * `git clone git@github.com:hirusi/splisher.git`
 * `heroku apps:create [name]`
 * `git push heroku master`
+
+## Local Development
+
+The Dockerfile is designed to only run on Linux hosts -- it uses a bind mount.
+
+* `git clone git@github.com:hirusi/splisher.git && cd splisher`
+* `docker-compose build`
+* `docker-compose up`
+* `docker container exec splisher_web_1 npm install`

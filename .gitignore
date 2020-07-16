@@ -4,3 +4,8 @@ node_modules
 # Express app dirs and files
 config
 index.js
+
+# Frontend output
+assets/js
+#assets/css
+#assets/img

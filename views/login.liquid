@@ -1,0 +1,49 @@
+{% layout 'default' %}
+
+<h2>Login</h2>
+
+<p>
+	Hi! To begin using this client, please login with your domain. Once
+	authenticated, you will be able to publish to your micropub server.
+</p>
+
+<p>
+	Please ensure you have the following meta tags available in your page
+	source:
+</p>
+<ol>
+	<li>
+		<code>authorization_endpoint</code>
+	</li>
+	<li>
+		<code>token_endpoint</code>
+	</li>
+	<li>
+		<code>micropub</code>
+	</li>
+</ol>
+
+{% if error %}
+<p>An error occured. {{ error }}</p>
+{% endif %}
+
+<form action="{{ indielogin.auth }}" method="get">
+	<label for="url">Web Address:</label>
+	<input
+		id="url"
+		name="me"
+		placeholder="yourdomain.com"
+		type="text"
+		autocomplete="on"
+		autofocus
+	/>
+	<br />
+	<button type="submit">Sign In</button>
+	<input name="client_id" type="hidden" value="{{ indielogin.client_id }}" />
+	<input
+		name="redirect_uri"
+		type="hidden"
+		value="{{ indielogin.redirect_uri }}"
+	/>
+	<input name="state" type="hidden" value="{{ csrfToken }}" />
+</form>
