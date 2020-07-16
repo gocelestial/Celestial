@@ -13,7 +13,7 @@ publishRouter.use((err, req, res, next) => {
 	next();
 });
 
-publishRouter.get("/article", (req, res) => {
+publishRouter.get("/article/", (req, res) => {
 	res.render("publish/article", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -22,7 +22,7 @@ publishRouter.get("/article", (req, res) => {
 	});
 });
 
-publishRouter.get("/note", (req, res) => {
+publishRouter.get("/note/", (req, res) => {
 	res.render("publish/note", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -31,7 +31,7 @@ publishRouter.get("/note", (req, res) => {
 	});
 });
 
-publishRouter.get("/reply", (req, res) => {
+publishRouter.get("/reply/", (req, res) => {
 	res.render("publish/reply", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -40,7 +40,7 @@ publishRouter.get("/reply", (req, res) => {
 	});
 });
 
-publishRouter.get("/like", (req, res) => {
+publishRouter.get("/like/", (req, res) => {
 	res.render("publish/like", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -49,7 +49,7 @@ publishRouter.get("/like", (req, res) => {
 	});
 });
 
-publishRouter.get("/repost", (req, res) => {
+publishRouter.get("/repost/", (req, res) => {
 	res.render("publish/repost", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -58,7 +58,7 @@ publishRouter.get("/repost", (req, res) => {
 	});
 });
 
-publishRouter.get("/bookmark", (req, res) => {
+publishRouter.get("/bookmark/", (req, res) => {
 	res.render("publish/bookmark", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -67,7 +67,7 @@ publishRouter.get("/bookmark", (req, res) => {
 	});
 });
 
-publishRouter.get("/photo", (req, res) => {
+publishRouter.get("/photo/", (req, res) => {
 	res.render("publish/photo", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -76,7 +76,7 @@ publishRouter.get("/photo", (req, res) => {
 	});
 });
 
-publishRouter.get("/video", (req, res) => {
+publishRouter.get("/video/", (req, res) => {
 	res.render("publish/video", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -85,7 +85,7 @@ publishRouter.get("/video", (req, res) => {
 	});
 });
 
-publishRouter.get("/audio", (req, res) => {
+publishRouter.get("/audio/", (req, res) => {
 	res.render("publish/audio", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -94,7 +94,7 @@ publishRouter.get("/audio", (req, res) => {
 	});
 });
 
-publishRouter.get("/checkin", (req, res) => {
+publishRouter.get("/checkin/", (req, res) => {
 	res.render("publish/checkin", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -103,7 +103,7 @@ publishRouter.get("/checkin", (req, res) => {
 	});
 });
 
-publishRouter.get("/event", (req, res) => {
+publishRouter.get("/event/", (req, res) => {
 	res.render("publish/event", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
@@ -112,7 +112,7 @@ publishRouter.get("/event", (req, res) => {
 	});
 });
 
-publishRouter.get("/rsvp", (req, res) => {
+publishRouter.get("/rsvp/", (req, res) => {
 	res.render("publish/rsvp", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,

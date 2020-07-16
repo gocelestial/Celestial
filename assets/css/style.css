@@ -315,7 +315,7 @@ body > main {
 @media (min-width: 1024px) {
 
 .navigation {
-        flex-direction: column
+		flex-direction: column
 }
 	}
 
@@ -331,6 +331,10 @@ body > main {
 		/* Undo Sakura */
 		border-bottom: none;
 	}
+
+.navigation__link--active {
+	color: #982c61;
+}
 
 img.emoji {
 	height: 1em;

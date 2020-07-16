@@ -3,7 +3,7 @@
 	flex-direction: row;
 
 	@media (--lg-view) {
-        flex-direction: column;
+		flex-direction: column;
 	}
 }
 
@@ -17,4 +17,8 @@
 		/* Undo Sakura */
 		border-bottom: none;
 	}
+}
+
+.navigation__link--active {
+	color: #982c61;
 }
