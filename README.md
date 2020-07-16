@@ -6,6 +6,7 @@ A micropub client.
 - [x] Set up infrastructure with a welcome page
 - [x] Set up IndieLogin
     - [ ] Request registration of client ID once in production
+- [ ] Use a logging library
 - [ ] [Types of posts](https://indieweb.org/posts#Types_of_Posts) to be supported
     - [ ] Article
     - [ ] Note

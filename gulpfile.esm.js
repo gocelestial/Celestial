@@ -5,8 +5,6 @@ import { css, cssPurgeMin, cssWatcher } from "./gulp_tasks/css.esm";
 import { js, jsWatcher } from "./gulp_tasks/js.esm";
 import { typescript, server, watcher } from "./gulp_tasks/express.esm";
 
-// Frontend Tasks
-
 // Env tasks
 const development = series(
 	typescript,

@@ -5,10 +5,11 @@ body {
     padding: unset;
 
     /* Add dark mode */
-    @media (--dm) {
-        color: #e1e1e1;
-        background-color: #000;
-    }
+    /* Disabled until functionality is complete. It works and that's all we wanted to see. */
+    /* @media (--dm) {
+        color: white;
+        background-color: black;
+    } */
 
     /* Our styling */
     display: grid;

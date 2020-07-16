@@ -12,4 +12,9 @@
 	& > img {
 		display: inline;
 	}
+
+	&:hover {
+		/* Undo Sakura */
+		border-bottom: none;
+	}
 }

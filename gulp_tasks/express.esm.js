@@ -3,8 +3,8 @@ import path from "path";
 const tsc = require("gulp-typescript");
 const nodemon = require("gulp-nodemon");
 
-const typescriptRoot = path.resolve(__dirname, "./src/**/*.ts");
-const typescriptOut = path.resolve(__dirname, "./");
+const typescriptRoot = path.resolve(__dirname, "../src/**/*.ts");
+const typescriptOut = path.resolve(__dirname, "../");
 
 const typescript = () => {
 	return src(typescriptRoot).pipe(tsc()).pipe(dest(typescriptOut));
