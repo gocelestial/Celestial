@@ -1,8 +1,10 @@
 @charset "UTF-8";
 
-@import "./sakura.css";
+@import "./colors.css";
 
 @import "./media-queries.css";
+
+@import "./sakura.css";
 
 @import "./layout.css";
 

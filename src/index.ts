@@ -82,6 +82,7 @@ app.get("/", (req, res) => {
 	res.render("index", {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
+		pageTitle: "Hello! 👋",
 		appState: req.session.appState || "guest",
 		userIdentity:
 			req.session.data && req.session.data.me

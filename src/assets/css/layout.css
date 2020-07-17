@@ -14,15 +14,21 @@ body {
     /* Our styling */
     display: grid;
     grid-template-columns: 20% 1fr 6fr 20%;
-    grid-template-rows: auto auto;
-    column-gap: 2em;
-    row-gap: 2me;
+    grid-template-rows: auto 1fr;
+    column-gap: 1em;
+    row-gap: 1em;
+
+    /* So that main spans all remaining space */
+    min-height: 100vh;
 
     & > header {
         grid-column-start: 3;
         grid-column-end: 4;
         grid-row-start: 1;
         grid-row-end: 2;
+
+        background: var(--background);
+        padding: 12px 18px;
     }
 
     & > nav {
@@ -32,6 +38,7 @@ body {
         grid-row-end: 3;
         
         text-align: right;
+        padding: 12px 6px;
     }
 
     & > main {
@@ -39,5 +46,8 @@ body {
         grid-column-end: 4;
         grid-row-start: 2;
         grid-row-end: 3;
+
+        background: var(--background);
+        padding: 12px 18px;
     }
 }

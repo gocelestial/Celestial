@@ -1,0 +1,41 @@
+:root {
+	--background: #f9f9f9;
+	--background-off: #f1f1f1;
+	--text-color: #4a4a4a;
+
+	--form-element-background: var(--background-off);
+	--form-element-border: #4a4a4a;
+	--button-text-color: #f9f9f9;
+
+	--brand-base: #2c8898;
+	--brand-complement: #982c61;
+
+	--link: var(--brand-base);
+	--link-hover: var(--brand-complement);
+
+	--hr: var(--brand-base);
+
+	--code: var(--background-off);
+}
+
+@media (--dm) {
+	:root {
+		--background: #111111;
+		--background-off: #0a0a0a;
+		--text-color: #fafafa;
+
+		--form-element-background: var(--background-off);
+		--form-element-border: #fafafa;
+		--button-text-color: #111111;
+	
+		--brand-base: #35abc0;
+		--brand-complement: #c44381;
+	
+		--link: var(--brand-base);
+		--link-hover: var(--brand-complement);
+	
+		--hr: var(--brand-base);
+
+		--code: var(--background-off);
+	}
+}
