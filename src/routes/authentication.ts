@@ -395,31 +395,28 @@ authRouter.get("/token/", (req: ExpressRequest, res: ExpressResponse) => {
 });
 
 authRouter.get("/revoke/", (req: ExpressRequest, res: ExpressResponse) => {
+	const params = new URLSearchParams();
+	params.append("me", req.session?.validatedUserProfileURL);
+	params.append("action", "revoke");
+	params.append("token", req.session?.access_token);
+
 	fetch(req.session?.endpoints?.token, {
 		method: "POST",
 		headers: {
 			Accept: "application/json",
 		},
-		body: new URLSearchParams(
-			JSON.stringify({
-				me: req.session?.userProfileURL,
-				action: "revoke",
-				token: req.session?.access_token,
-			})
-		),
+		body: params,
 	})
-		.then((response) => response.json())
+		.then((response) => {
+			if (response?.ok) return response;
+			else return response.json();
+		})
 		.then((data) => {
 			if (data.error) throw new Error(data.error_description);
 			if (req.session) {
-				delete req.session.data;
-				delete req.session.userProfileURL;
-				delete req.session.validatedUserProfileURL;
-				delete req.session.access_token;
-				delete req.session.token_type;
-				delete req.session.endpoints;
-				delete req.session.scope;
-				req.session.appState = AppUserState.Guest;
+				req.session.destroy((error) => {
+					if (error) throw new Error(error);
+				});
 			}
 			res.redirect(302, "/");
 		})
