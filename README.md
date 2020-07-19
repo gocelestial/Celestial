@@ -1,5 +1,14 @@
 # Splisher
-A micropub client.
+
+I am building this __Micropub client__ with a few goals in mind:
+
+- Be as spec-compliant as possible.
+- Look good and support system-based dark mode.
+- Make self-hosting  as easy as configuring environment variables followed up `docker-compose up`.
+- Make IndieWeb accessible to less technically inclined folks.
+- To make something useful for myself and others while I figure out and learn backend content.
+
+Although spec compliance should ensure it works with any Micropub server, I will only be testing this with [Indiekit](https://github.com/paulrobertlloyd/indiekit/ "indiekit"). Paul Robert Lloyd is currently working on its successor [here](https://github.com/paulrobertlloyd/indiekit-redux "indiekit-redux").
 
 ## To-Do
 
