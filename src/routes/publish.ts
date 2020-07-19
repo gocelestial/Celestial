@@ -21,7 +21,13 @@ const publishRouter = Router();
 // Validate session exists or redirect to login
 publishRouter.use(
 	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
-		if (req?.session?.data?.me) {
+		console.log(req.session);
+		if (
+			req.session &&
+			(req.session.appState === AppUserState.Guest ||
+				req.session.appState === undefined)
+		) {
+			req.session.error = "You need to login first.";
 			res.redirect(302, "/login/");
 		}
 		next();
