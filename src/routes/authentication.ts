@@ -5,18 +5,19 @@ import express, {
 } from "express";
 import fetch, { FetchError } from "node-fetch";
 import httpLinkHeader from "http-link-header";
-import { csrfProtection } from "../middleware/csrfProtection";
-import { urlEncodedParser } from "../middleware/urlEncodedParser";
+import { URLSearchParams } from "url";
 import got from "got";
 import cheerio from "cheerio";
-import { URLSearchParams } from "url";
 
 // Env and other constants
 import { APP_TITLE, APP_SUBTITLE, INDIEAUTH_CLIENT } from "../config/constants";
 
-// Our interface and enums
+// Our interface, enums, and middleware
 import { DefaultPageData } from "../interface/DefaultPageData";
 import { AppUserState } from "../enumerator/AppUserState";
+import { csrfProtection } from "../middleware/csrfProtection";
+import { urlEncodedParser } from "../middleware/urlEncodedParser";
+import { getProfileAndDiscoveryUrls } from "../lib/userProfile";
 
 const authRouter: express.Router = express.Router();
 
@@ -42,7 +43,7 @@ authRouter.get(
 			csrfToken: req.csrfToken(),
 		};
 
-		console.log(
+		console.info(
 			`Sending CSRF token ${pageData.csrfToken} for session ID ${req.session?.id}`
 		);
 
@@ -76,188 +77,215 @@ authRouter.post(
 	urlEncodedParser,
 	csrfProtection,
 	(req: ExpressRequest, res: ExpressResponse) => {
-		// https://indieauth.spec.indieweb.org/#discovery-by-clients
-
-		// Validation
-		if (!req.body?.me) {
-			if (req.session)
-				req.session.error = "No or incorrect web address specified.";
+		// Basic check for existence
+		if (req.body?.me === undefined) {
+			if (req.session) req.session.error = "No web address specified.";
 			res.redirect(301, "/login/");
 		}
 
-		let { me: userIdentity } = req.body;
+		// Set user's timezone
+		// TODO Let them select this explicity in a config area if they're not happy with assumed timezone, or simply want to change it temporarily.
+		if (req.session && req.body?.timezone)
+			req.session.user = Object.assign({}, req.session.user, {
+				timezone: req.body.timezone,
+			});
 
-		// Add in http, if not NEITHER http NOR https present. Do not touch if http OR https is specified. Let fetch follow the redirect from http to https if configured by user on their web address, and from www to no-www/no-www to www. We will limit it to 2 redirects. Spec is flexible on this.
-		if (!userIdentity.match(/^http[s]{0,1}:\/\//))
-			userIdentity = String.prototype.concat("http://", userIdentity);
-		let userIdentityURL = new URL(userIdentity);
-
-		// This lets us discard things like hash, search params, port etc. without a validation check.
-		if (req.session) req.session.userProfileURL = userIdentityURL.origin;
-
-		// First, we make a HEAD request to see if headers have been specified with the information we want. We save whatever we can find. If something remains, we make a GET request and parse the document with cheerio.
-
-		// TODO If an HTTP permament redirect (HTTP 301 or 308) is encountered, the client MUST use the resulting URL as the canonical profile URL. If an HTTP temporary redirect (HTTP 302 or 307) is encountered, the client MUST use the previous URL as the profile URL, but use the redirected-to page for discovery.
-		// https://indieauth.spec.indieweb.org/#discovery-by-clients
-		fetch(req.session?.userProfileURL, {
-			method: "HEAD",
-			follow: 2,
-		})
+		// TODO Fix nesting hell
+		getProfileAndDiscoveryUrls(req.body.me)
 			.then((response) => {
-				if (!response.ok)
-					throw new Error(
-						"Error while getting headers from your web address."
+				// We have the Profile URL and the Discovery URL
+				if (req.session)
+					req.session.user = Object.assign(
+						{},
+						req.session.user,
+						response
 					);
 
-				if (req.session) req.session.endpoints = {};
-
-				// Look for required headers and collect whatever we can into session data
-				if (response.headers.get("link")) {
-					const linkHeaders = new httpLinkHeader(
-						response.headers.get("link") as string
-					);
-
-					if (linkHeaders.has("rel", "authorization_endpoint")) {
-						if (req.session) {
-							req.session.endpoints.authorization = linkHeaders.get(
-								"rel",
-								"authorization_endpoint"
-							)[0].uri;
-							console.info(
-								"Auth endpoint found in HTTP headers."
+				// First, we make a HEAD request to see if headers have been specified with the information we want. We save whatever we can find. If something remains, we make a GET request and parse the document with cheerio.
+				fetch(req.session?.user?.discoveryUrl, {
+					method: "HEAD",
+					follow: 1,
+				})
+					.then((response) => {
+						if (!response.ok)
+							throw new Error(
+								"Error while getting headers from your web address."
 							);
-						}
-					}
-					if (linkHeaders.has("rel", "token_endpoint")) {
-						if (req.session) {
-							req.session.endpoints.token = linkHeaders.get(
-								"rel",
-								"token_endpoint"
-							)[0].uri;
-							console.info(
-								"Token endpoint found in HTTP headers."
-							);
-						}
-					}
-					if (linkHeaders.has("rel", "micropub")) {
-						if (req.session) {
-							req.session.endpoints.micropub = linkHeaders.get(
-								"rel",
-								"micropub"
-							)[0].uri;
-							console.info(
-								"Micropub endpoint found in HTTP headers."
-							);
-						}
-					}
-				}
 
-				// If we don't have all endpoints, make a GET request to parse the document and look for remaining ones
-				if (
-					!req.session?.endpoints?.authorization ||
-					!req.session?.endpoints?.token ||
-					!req.session?.endpoints?.micropub
-				) {
-					console.info(
-						"Did not find all endpoints in headers, fetching and parsing the page source now."
-					);
-					got(req.session?.userProfileURL, {
-						method: "GET",
-						followRedirect: true,
-						maxRedirects: 2,
-					})
-						.then((response) => {
-							if (
-								!(
-									response.statusCode >= 200 &&
-									response.statusCode < 300
-								)
-							)
-								throw new Error(
-									"Error while parsing the page source of your web address."
-								);
+						if (req.session) req.session.endpoints = {};
+
+						// Look for required headers and collect whatever we can into session data
+						if (response.headers.get("link")) {
+							const linkHeaders = new httpLinkHeader(
+								response.headers.get("link") as string
+							);
 
 							if (
-								!response.headers["content-type"] ||
-								!response.headers["content-type"].includes(
-									"text/html"
-								)
-							)
-								throw new Error(
-									"The web address did not return HTML content. Are the headers set correctly?"
-								);
-
-							console.info("Reading page source now.");
-							const $ = cheerio.load(response.body);
-
-							if (!req.session?.endpoints?.authorization) {
-								const authEndpoint = $(
-									'link[rel="authorization_endpoint"]'
-								).attr("href");
-								console.log("Found authEndpoint", authEndpoint);
-								if (authEndpoint && new URL(authEndpoint)) {
-									// Valid URL
-									console.info("Auth endpoint valid.");
-									if (req.session)
-										req.session.endpoints.authorization = authEndpoint;
-								} else
-									throw new Error(
-										"Could not find authorization endpoint."
+								linkHeaders.has("rel", "authorization_endpoint")
+							) {
+								if (req.session) {
+									req.session.endpoints.authorization = linkHeaders.get(
+										"rel",
+										"authorization_endpoint"
+									)[0].uri;
+									console.info(
+										"Auth endpoint found in HTTP headers."
 									);
+								}
 							}
-
-							if (!req.session?.endpoints?.token) {
-								const tokenEndpoint = $(
-									'link[rel="token_endpoint"]'
-								).attr("href");
-								console.log(
-									"Found tokenEndpoint",
-									tokenEndpoint
-								);
-								if (tokenEndpoint && new URL(tokenEndpoint)) {
-									console.info("Token endpoint valid.");
-									// Valid URL
-									if (req.session)
-										req.session.endpoints.token = tokenEndpoint;
-								} else
-									throw new Error(
-										"Could not find token endpoint."
+							if (linkHeaders.has("rel", "token_endpoint")) {
+								if (req.session) {
+									req.session.endpoints.token = linkHeaders.get(
+										"rel",
+										"token_endpoint"
+									)[0].uri;
+									console.info(
+										"Token endpoint found in HTTP headers."
 									);
+								}
 							}
-
-							if (!req.session?.endpoints?.micropub) {
-								const micropubEndpoint = $(
-									'link[rel="micropub"]'
-								).attr("href");
-								console.log(
-									"Found micropubEndpoint",
-									micropubEndpoint
-								);
-								if (
-									micropubEndpoint &&
-									new URL(micropubEndpoint)
-								) {
-									console.info("Micropub endpoint valid.");
-									// Valid URL
-									if (req.session)
-										req.session.endpoints.micropub = micropubEndpoint;
-								} else
-									throw new Error(
-										"Could not find micropub endpoint."
+							if (linkHeaders.has("rel", "micropub")) {
+								if (req.session) {
+									req.session.endpoints.micropub = linkHeaders.get(
+										"rel",
+										"micropub"
+									)[0].uri;
+									console.info(
+										"Micropub endpoint found in HTTP headers."
 									);
+								}
 							}
-							// Finally, start the auth flow - authorization followed by an access token, followed by a redirect to home.
+						}
+
+						// If we don't have all endpoints, make a GET request to parse the document and look for remaining ones
+						if (
+							!req.session?.endpoints?.authorization ||
+							!req.session?.endpoints?.token ||
+							!req.session?.endpoints?.micropub
+						) {
+							console.info(
+								"Did not find all endpoints in headers, fetching and parsing the page source now."
+							);
+							got(req.session?.user?.discoveryUrl, {
+								method: "GET",
+								followRedirect: true,
+								maxRedirects: 1,
+							})
+								.then((response) => {
+									if (
+										!(
+											response.statusCode >= 200 &&
+											response.statusCode < 300
+										)
+									)
+										throw new Error(
+											"Error while parsing the page source of your web address."
+										);
+
+									if (
+										!response.headers["content-type"] ||
+										!response.headers[
+											"content-type"
+										].includes("text/html")
+									)
+										throw new Error(
+											"The web address did not return HTML content. Are the headers set correctly?"
+										);
+
+									console.info("Reading page source now.");
+									const $ = cheerio.load(response.body);
+
+									if (
+										!req.session?.endpoints?.authorization
+									) {
+										const authEndpoint = $(
+											'link[rel="authorization_endpoint"]'
+										).attr("href");
+										console.log(
+											"Found authEndpoint",
+											authEndpoint
+										);
+										if (
+											authEndpoint &&
+											new URL(authEndpoint)
+										) {
+											// Valid URL
+											console.info(
+												"Auth endpoint valid."
+											);
+											if (req.session)
+												req.session.endpoints.authorization = authEndpoint;
+										} else
+											throw new Error(
+												"Could not find authorization endpoint."
+											);
+									}
+
+									if (!req.session?.endpoints?.token) {
+										const tokenEndpoint = $(
+											'link[rel="token_endpoint"]'
+										).attr("href");
+										console.log(
+											"Found tokenEndpoint",
+											tokenEndpoint
+										);
+										if (
+											tokenEndpoint &&
+											new URL(tokenEndpoint)
+										) {
+											console.info(
+												"Token endpoint valid."
+											);
+											// Valid URL
+											if (req.session)
+												req.session.endpoints.token = tokenEndpoint;
+										} else
+											throw new Error(
+												"Could not find token endpoint."
+											);
+									}
+
+									if (!req.session?.endpoints?.micropub) {
+										const micropubEndpoint = $(
+											'link[rel="micropub"]'
+										).attr("href");
+										console.log(
+											"Found micropubEndpoint",
+											micropubEndpoint
+										);
+										if (
+											micropubEndpoint &&
+											new URL(micropubEndpoint)
+										) {
+											console.info(
+												"Micropub endpoint valid."
+											);
+											// Valid URL
+											if (req.session)
+												req.session.endpoints.micropub = micropubEndpoint;
+										} else
+											throw new Error(
+												"Could not find micropub endpoint."
+											);
+									}
+									// Finally, start the auth flow - authorization followed by an access token, followed by a redirect to home.
+									res.redirect(302, "/login/auth/");
+								})
+								.catch((error: FetchError | Error) => {
+									console.log(error);
+									if (req.session)
+										req.session.error = error.message;
+									res.redirect(302, "/login/");
+								});
+						} else {
+							// We have all the endpoints. If we're here, there's no need to parse page source.
 							res.redirect(302, "/login/auth/");
-						})
-						.catch((error: FetchError | Error) => {
-							console.log(error);
-							if (req.session) req.session.error = error.message;
-							res.redirect(302, "/login/");
-						});
-				} else {
-					// We have all the endpoints. If we're here, there's no need to parse page source.
-					res.redirect(302, "/login/auth/");
-				}
+						}
+					})
+					.catch((error) => {
+						if (req.session) req.session.error = error.message;
+						res.redirect(302, "/login/");
+					});
 			})
 			.catch((error) => {
 				if (req.session) req.session.error = error.message;
@@ -273,7 +301,7 @@ authRouter.get(
 		// Start auth flow to the authorization_endpoint
 		if (req.session?.endpoints?.authorization) {
 			const authData = new URLSearchParams();
-			authData.append("me", req.session?.userProfileURL);
+			authData.append("me", req.session?.user?.profileUrl);
 			authData.append("client_id", INDIEAUTH_CLIENT.client_id);
 			authData.append("redirect_uri", INDIEAUTH_CLIENT.redirect_uri);
 			authData.append("state", req.session?.csrfSecret);
@@ -322,7 +350,7 @@ authRouter.get(
 						);
 
 					if (req.session) {
-						req.session.validatedUserProfileURL = data?.me;
+						// req.session.validatedUserProfileURL = data?.me;
 						req.session.code = req.query.code;
 					}
 					res.redirect(302, "/login/token/");
@@ -344,7 +372,7 @@ authRouter.get(
 authRouter.get("/token/", (req: ExpressRequest, res: ExpressResponse) => {
 	if (req.session?.endpoints?.token) {
 		const params = new URLSearchParams();
-		params.append("me", req.session?.validatedUserProfileURL);
+		params.append("me", req.session?.user?.profileUrl);
 		params.append("client_id", INDIEAUTH_CLIENT.client_id);
 		params.append("redirect_uri", INDIEAUTH_CLIENT.redirect_uri);
 		params.append("code", req.session?.code);
@@ -384,7 +412,8 @@ authRouter.get("/token/", (req: ExpressRequest, res: ExpressResponse) => {
 						req.session.access_token = data?.access_token;
 						req.session.token_type = data?.token_type;
 						req.session.scope = data?.scope;
-						req.session.validatedUserProfileURL = data?.me;
+						console.log(data?.me);
+						// req.session.validatedUserProfileURL = data?.me;
 						req.session.appState = AppUserState.User;
 					}
 					res.redirect(302, "/");

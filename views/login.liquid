@@ -24,16 +24,23 @@
 {% endif %}
 
 <form action="/login/try/" method="post" enctype="application/x-www-form-urlencoded">
+
 	<label for="url">Web Address:</label>
 	<input
 		id="url"
 		name="me"
-		placeholder="yourdomain.com"
-		type="text"
+		placeholder="https://yourdomain.com"
+		type="url"
 		autocomplete="on"
 		autofocus
 	/>
+
 	<br />
 	<button type="submit">Sign In</button>
+
 	<input name="_csrf" type="hidden" value="{{ csrfToken }}" />
+
+	{% comment %} Collect user tz at the time of sign in and store it. {% endcomment %}
+	<input type="hidden" name="timezone" value="" />
+	
 </form>
