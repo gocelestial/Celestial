@@ -7,7 +7,9 @@ const typescriptRoot = path.resolve(__dirname, "../src/**/*.ts");
 const typescriptOut = path.resolve(__dirname, "../");
 
 const typescript = () => {
-	return src(typescriptRoot).pipe(tsc()).pipe(dest(typescriptOut));
+	return src(typescriptRoot)
+		.pipe(tsc(require("../tsconfig.js")))
+		.pipe(dest(typescriptOut));
 };
 
 const server = () => {

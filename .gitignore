@@ -2,12 +2,12 @@
 node_modules
 
 # Express app dirs and files
-config
-middleware
-routes
+/config
+/middleware
+/routes
+/enumerator
+/interface
 index.js
 
 # Frontend output
-assets/js
-assets/css
-#assets/img
+/assets

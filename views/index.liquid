@@ -1,11 +1,24 @@
 {% layout 'default' %}
 
-<p>I made this Micropub client with a few goals:</p>
+{% comment %}
+    Provide app information as mf2 output
+    https://indieauth.spec.indieweb.org/#application-information
+{% endcomment %}
+<div class="h-app hidden">
+    {% comment %} TODO Create and add logo {% endcomment %}
+    <img src="" class="u-logo" alt="">
+    <a href="/" class="u-url p-name">Splisher</a>
+</div>
+
+{% if error %}
+<p>An error occured: {{ error }}</p>
+{% endif %}
+
+<p>I made this Micropub client with a few goals in mind:</p>
 
 <ul>
     <li>Be as spec-compliant as possible.</li>
-    <li>Look good and support system-based dark mode. Who would be happy returning (again and again...) to something that is not pleasing to the eye?</li>
-    <li>Work on something that is well-tested with a specific Micropub server: IndieKit.</li>
-    <li>Make IndieWeb accessible to less technically inclined folks. Self-hosting should be easy.</li>
+    <li>Look good and support system-based dark mode. Who would be happy returning (again and again...) to something that is not pleasing to the eye? 🙂</li>
+    <li>Self-hosting should be easy. Make IndieWeb accessible to less technically inclined folks.</li>
     <li>To make something useful while I figure out and learn backend content.</li>
 </ul>

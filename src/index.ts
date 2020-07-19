@@ -1,12 +1,16 @@
 // Core
-const express = require("express");
+import express, {
+	Response as ExpressResponse,
+	Request as ExpressRequest,
+	NextFunction as ExpressNextFunction,
+} from "express";
 
 // Env and other constants
 import {
 	PORT,
 	REDIS_PASSWORD,
 	APP_TITLE,
-	APP_SUBTITLE
+	APP_SUBTITLE,
 } from "./config/constants";
 
 // Template engine
@@ -31,14 +35,24 @@ const app = express();
 import { publishRouter } from "./routes/publish";
 import { authRouter } from "./routes/authentication";
 
+// Our interface and enums
+import { DefaultPageData } from "./interface/DefaultPageData";
+import { AppUserState } from "./enumerator/AppUserState";
+
 // Set up a CSP
+const directives = {
+	defaultSrc: ["'self'"],
+	// styleSrc: ["'self'"],
+	scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
+	imgSrc: ["https://twemoji.maxcdn.com/"],
+};
+
+if (process.env.NODE_ENV === "development")
+	directives.scriptSrc.push("'unsafe-eval'");
+
 app.use(
 	helmet.contentSecurityPolicy({
-		directives: {
-			defaultSrc: ["'self'"],
-			scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
-			imgSrc: ["https://twemoji.maxcdn.com/"],
-		},
+		directives,
 	})
 );
 
@@ -64,7 +78,10 @@ app.use(
 		// How do I know if this is necessary for my store? The best way to know is to check with your store if it implements the touch method. If it does, then you can safely set resave: false. If it does not implement the touch method and your store sets an expiration date on stored sessions, then you likely need resave: true.
 		resave: false,
 		// Settings object for the session ID cookie. The default value is { path: '/', httpOnly: true, secure: false, maxAge: null }.
-		cookie: {},
+		cookie: {
+			maxAge: 1000 * 60 * 60 * 24, // 1 day
+			sameSite: false,
+		},
 		// The session store instance, defaults to a new MemoryStore instance.
 		store: new RedisStore({
 			client: redisClient,
@@ -72,34 +89,31 @@ app.use(
 	})
 );
 
-app.use((req, res, next) => {
-	if (req.session.data && req.session.data.me) req.session.appState = "user";
-	next();
-});
+// Set appState is identity available in session
+app.use(
+	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
+		if (req.session?.data) req.session.appState = AppUserState.User;
+		next();
+	}
+);
 
 // Routes
-app.get("/", (req, res) => {
-	res.render("index", {
+app.get("/", (req: ExpressRequest, res: ExpressResponse) => {
+	const pageData: DefaultPageData = {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
 		pageTitle: "Hello! 👋",
-		appState: req.session.appState || "guest",
-		userIdentity:
-			req.session.data && req.session.data.me
-				? req.session.data.me
-				: null,
-	});
+		appState: req.session?.appState || AppUserState.Guest,
+		userIdentity: req.session?.validatedUserProfileURL || null,
+		error: req.session?.error || null,
+	};
+
+	if (req.session && req.session?.error) req.session.error = null;
+
+	res.render("index", pageData);
 });
 
 app.use("/login/", authRouter);
-
-// Middleware to protect routes
-app.use((req, res, next) => {
-	if (!req.session || (!req.session.data && !req.session.data.me)) {
-		next(new Error("not logged in or invalid code."));
-	}
-	next();
-});
 
 app.use("/publish/", publishRouter);
 

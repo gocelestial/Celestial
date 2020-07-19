@@ -20,10 +20,10 @@
 </ol>
 
 {% if error %}
-<p>An error occured. {{ error }}</p>
+<p>An error occured: {{ error }}</p>
 {% endif %}
 
-<form action="{{ indielogin.auth }}" method="get">
+<form action="/login/try/" method="post" enctype="application/x-www-form-urlencoded">
 	<label for="url">Web Address:</label>
 	<input
 		id="url"
@@ -35,11 +35,5 @@
 	/>
 	<br />
 	<button type="submit">Sign In</button>
-	<input name="client_id" type="hidden" value="{{ indielogin.client_id }}" />
-	<input
-		name="redirect_uri"
-		type="hidden"
-		value="{{ indielogin.redirect_uri }}"
-	/>
-	<input name="state" type="hidden" value="{{ csrfToken }}" />
+	<input name="_csrf" type="hidden" value="{{ csrfToken }}" />
 </form>

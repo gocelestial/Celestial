@@ -1,1 +1,37 @@
 {% layout 'default' %}
+
+{% if error %}
+    <p>An error occured: {{ error }}</p>
+{% endif %}
+
+<div class="form form--note">
+    <form action="/publish/note/" method="post">
+
+        <label for="date">Date:</label>
+        <input
+            id="date"
+            name="date"
+            type="date"
+        />
+        <br />
+
+        <label for="time">Time:</label>
+        <input
+            id="time"
+            name="time"
+            type="time"
+            value=""
+        />
+        <br />
+        
+        <label for="note">Note:</label>
+        <textarea name="note" id="note" cols="30" rows="10" placeholder="Your note..."></textarea>
+        <br />
+    
+        <input type="hidden" name="h" value="note">
+    
+        <button type="submit">Create note</button>
+    
+    </form>
+</div>
+
