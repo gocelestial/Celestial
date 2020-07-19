@@ -20,6 +20,15 @@ import { AppUserState } from "../enumerator/AppUserState";
 
 const authRouter: express.Router = express.Router();
 
+// Send back to home page if already logged in
+authRouter.use(
+	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
+		if (req.session && req.session.appState === AppUserState.User)
+			res.redirect(302, "/");
+		next();
+	}
+);
+
 authRouter.get(
 	"/",
 	csrfProtection,
