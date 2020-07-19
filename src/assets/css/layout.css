@@ -4,13 +4,6 @@ body {
     margin: unset;
     padding: unset;
 
-    /* Add dark mode */
-    /* Disabled until functionality is complete. It works and that's all we wanted to see. */
-    /* @media (--dm) {
-        color: white;
-        background-color: black;
-    } */
-
     /* Our styling */
     display: grid;
     grid-template-columns: 20% 1fr 6fr 20%;
