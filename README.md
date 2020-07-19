@@ -4,7 +4,7 @@ I am building this __Micropub client__ with a few goals in mind:
 
 - Be as spec-compliant as possible.
 - Look good and support system-based dark mode.
-- Make self-hosting  as easy as configuring environment variables followed up `docker-compose up`.
+- Make self-hosting as easy as configuring environment variables followed by `docker-compose up`.
 - Make IndieWeb accessible to less technically inclined folks.
 - To make something useful for myself and others while I figure out and learn backend content.
 
@@ -46,6 +46,8 @@ Although spec compliance should ensure it works with any Micropub server, I will
     - [ ] [Query for category/tag list](https://indieweb.org/Micropub-extensions#Query_for_Category.2FTag_List)
 
 ## Usage
+
+__Not ready for public use.__
 
 * `git clone git@github.com:hirusi/splisher.git`
 * `heroku apps:create [name]`
