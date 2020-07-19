@@ -34,6 +34,7 @@ const app = express();
 // Route imports
 import { publishRouter } from "./routes/publish";
 import { authRouter } from "./routes/authentication";
+import { logoutRouter } from "./routes/logout";
 
 // Our interface and enums
 import { DefaultPageData } from "./interface/DefaultPageData";
@@ -92,7 +93,8 @@ app.use(
 // Set appState is identity available in session
 app.use(
 	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
-		if (req.session?.data) req.session.appState = AppUserState.User;
+		if (req.session?.validatedUserProfileURL)
+			req.session.appState = AppUserState.User;
 		next();
 	}
 );
@@ -114,6 +116,8 @@ app.get("/", (req: ExpressRequest, res: ExpressResponse) => {
 });
 
 app.use("/login/", authRouter);
+
+app.use("/logout/", logoutRouter);
 
 app.use("/publish/", publishRouter);
 
