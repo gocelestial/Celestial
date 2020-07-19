@@ -23,6 +23,7 @@ Although spec compliance should ensure it works with any Micropub server, I will
 - [ ] General resilience tasks
     - [ ] Use a logging library like `winston`
         - [ ] Set up with a transport such as [timber.io](https://timber.io)
+    - [ ] Modular codebase
 - [ ] [Types of posts](https://indieweb.org/posts#Types_of_Posts) to be supported:
     - [ ] 📄 [Article](https://indieweb.org/article)
     - [ ] 📔 [Note](https://indieweb.org/note)
