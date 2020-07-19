@@ -20,18 +20,6 @@ body {
 	padding: 13px;
 }
 
-@media (max-width: 684px) {
-	body {
-		font-size: 1.53rem;
-	}
-}
-
-@media (max-width: 382px) {
-	body {
-		font-size: 1.35rem;
-	}
-}
-
 h1,
 h2,
 h3,
