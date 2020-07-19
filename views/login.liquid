@@ -20,7 +20,7 @@
 </ol>
 
 {% if error %}
-<p>An error occured: {{ error }}</p>
+<p class="notification notification--error">An error occured: {{ error }}</p>
 {% endif %}
 
 <form action="/login/try/" method="post" enctype="application/x-www-form-urlencoded">

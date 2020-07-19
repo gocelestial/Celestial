@@ -16,6 +16,10 @@
 	--hr: var(--brand-base);
 
 	--code: var(--background-off);
+
+	--notification-error-background: #f1cdcd;
+	--notification-error-color: #b13c3c;
+	--notification-error-border: #9b2f2f;
 }
 
 @media (--dm) {
@@ -37,5 +41,9 @@
 		--hr: var(--brand-base);
 
 		--code: var(--background-off);
+
+		--notification-error-background: #3f0c0c;
+		--notification-error-color: #c03b3b;
+		--notification-error-border: #470d0d;
 	}
 }
