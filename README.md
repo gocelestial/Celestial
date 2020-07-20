@@ -13,11 +13,16 @@ Although spec compliance should ensure it works with any Micropub server, I will
 ## To-Do
 
 - [x] Set up infrastructure with a welcome page
-- [ ] IndieAuth spec compliance
-    - [ ] Authorization
+- [x] IndieAuth spec compliance
+    - [x] Authorization
         - [x] Basic usage with a sample `create` scope
-        - [ ] Complete all requirements as laid out by the spec
+        - [x] Complete all requirements as laid out by the spec
 - [ ] Micropub spec compliance
+    - [x] [Endpoint discovery](https://www.w3.org/TR/micropub/#endpoint-discovery)
+    - [ ] [Create](https://www.w3.org/TR/micropub/#create)
+    - [ ] [Update](https://www.w3.org/TR/micropub/#create)
+    - [ ] [Delete](https://www.w3.org/TR/micropub/#create)
+    - [ ] [Media endpoint](https://www.w3.org/TR/micropub/#media-endpoint)
     - [ ] [Query server for configuration](https://www.w3.org/TR/micropub/#configuration)
     - [ ] [Syndication targets](https://www.w3.org/TR/micropub/#syndication-targets)
 - [ ] General resilience tasks
@@ -37,10 +42,6 @@ Although spec compliance should ensure it works with any Micropub server, I will
     - [ ] 🚩 [Checkin](https://indieweb.org/checkin)
     - [ ] 📅 [Event](https://indieweb.org/event)
     - [ ] ↪ [Reply with RSVP](https://indieweb.org/rsvp)
-- [ ] For each post type
-    - [ ] Create
-    - [ ] Delete
-    - [ ] Update
 - [ ] Micropub extensions
     - [ ] [Query for supported post types](https://indieweb.org/Micropub-extensions#Query_for_Supported_Vocabulary)
     - [ ] [Slug](https://indieweb.org/Micropub-extensions#Slug)
