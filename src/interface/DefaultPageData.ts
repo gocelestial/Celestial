@@ -6,10 +6,17 @@ interface DefaultPageData {
 	appState: AppUserState;
 	pageTitle?: string;
 	csrfToken?: string;
-    error?: string | null;
-    userIdentity?: {
-        me: string
-    };
+	error?: string | null;
+	// TODO Phase out userIdentity and merge with user below
+	userIdentity?: {
+		me: string;
+	};
+	user?: {
+		microformats?: {
+			name?: string;
+			photo?: string;
+		};
+	};
 }
 
 export { DefaultPageData };

@@ -49,7 +49,7 @@ const directives = {
 	defaultSrc: ["'self'"],
 	// styleSrc: ["'self'"],
 	scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
-	imgSrc: ["https://twemoji.maxcdn.com/"],
+	imgSrc: ["'self'", "https://twemoji.maxcdn.com/"],
 };
 
 // Allow unsafe scripts locally
@@ -119,6 +119,12 @@ app.get("/", (req: ExpressRequest, res: ExpressResponse) => {
 		pageTitle: "Hello! 👋",
 		appState: req.session?.appState || AppUserState.Guest,
 		userIdentity: req.session?.user?.profileUrl || null,
+		user: {
+			microformats: {
+				name: req.session?.user?.microformats?.name,
+				photo: req.session?.user?.microformats?.photo,
+			},
+		},
 		error: req.session?.error || null,
 	};
 
@@ -133,9 +139,15 @@ app.get("/error", (req: ExpressRequest, res: ExpressResponse) => {
 	const pageData: DefaultPageData = {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
-		pageTitle: "An error occured",
+		pageTitle: "Error",
 		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
+		userIdentity: req.session?.user?.profileUrl,
+		user: {
+			microformats: {
+				name: req.session?.user?.microformats?.name,
+				photo: req.session?.user?.microformats?.photo,
+			},
+		},
 		error: req.session?.error || null,
 	};
 

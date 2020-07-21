@@ -13,16 +13,36 @@
 		<script src="/js/main.js"></script>
 	</head>
 	<body>
-		<header>
-			<h1>
-				<a href="/">{{ title }}</a>
-			</h1>
+		<header class="page-header">
+			<div class="page-header__title">
+				<h1>
+					<a href="/">{{ title }}</a>
+				</h1>
 
-			<h2>{{ pageTitle }}</h2>
+				<h2>{{ pageTitle }}</h2>
+			</div>
+			<div class="page-header__user-info">
+				{% if appState == "User" && userIdentity %}
 
-			{% if appState == "User" && userIdentity %}
-			<p>Logged in as <span class="user-login">{{ userIdentity }}</span>. (<a href="/logout/">Logout</a>)</p>
-			{% endif %}
+					<p class="page-header__user-identity">
+						<img
+							class="page-header__user-photo"
+							src="{% if user.microformats.photo %}{{user.microformats.photo}}{%else%}/img/default-profile-photo.png{%endif%}"
+							alt="{% if user.microformats.name %}{{user.microformats.name}}{%else%}Author{%endif%}'s photo'" />
+						
+						<span class="page-header__user-name">
+							{% if user.microformats.name %}
+								{{user.microformats.name}}
+							{% else %}
+								{{userIdentity}}
+							{% endif %}
+						</span>
+						
+						{% comment %} TODO Dropdown menu to handle user profile page nav with more details, settings (for timezone for example) etc. {% endcomment %}
+						<span>(<a href="/logout/">Logout</a>)</span>
+					</p>
+				{% endif %}
+			</div>
 		</header>
 		<nav role="navigation">
 			{% include 'navigation' %}

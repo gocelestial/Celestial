@@ -1,0 +1,39 @@
+.page-header {
+	display: flex;
+	flex-direction: column;
+
+	@media (--lg) {
+		flex-direction: row;
+		align-items: baseline;
+	}
+}
+
+.page-header__title {
+	flex-grow: 1;
+	flex-shrink: 0;
+	flex-basis: auto;
+}
+
+.page-header__user-identity {
+	flex-grow: 0;
+	flex-shrink: 0;
+	flex-basis: auto;
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.page-header__user-name {
+	font-weight: bold;
+}
+
+.page-header__user-photo {
+	border-radius: 100%;
+	width: 2.4rem;
+	height: auto;
+
+	/* TODO Investigate why this is needed at all! Is this Sakura? */
+	margin-bottom: 0;
+}
