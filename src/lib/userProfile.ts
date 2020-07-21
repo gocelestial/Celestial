@@ -3,12 +3,23 @@
 import fetch from "node-fetch";
 import isIp from "is-ip";
 
+import { logger } from "../lib/logger";
+import { LogLevels } from "../enumerator/LogLevels";
+
 const makeUrl = (url: string): URL => {
 	// Has the user entered any protocol at all - simple check for '://'
 	// Also note that if no pathname is specified, '/' is assumed by the URL class. We don't need to take care of this check later on.
 	if (url.indexOf("://")) {
+		logger.log(
+			LogLevels.debug,
+			"User has specified a protocol in their web address."
+		);
 		return new URL(url.toLowerCase());
 	} else {
+		logger.log(
+			LogLevels.debug,
+			"User has not specified a protocol in their web address, attaching http://"
+		);
 		// If http[s] not input the user, assume http
 		return new URL(String.prototype.concat("http://", url.toLowerCase()));
 	}
@@ -76,14 +87,21 @@ const getProfileAndDiscoveryUrls = (
 		// Perform validation checks as per spec
 		const isValid = isValidUrl(assumedUrl);
 		if (isValid instanceof Error) {
-			return isValid;
+			throw { code: "AppError", message: isValid.message };
 		} else {
-			// Everything checks out OK
+			logger.log(
+				LogLevels.debug,
+				"User's web address has been validated successfully."
+			);
 			fetch(assumedUrl.toString(), {
 				method: "HEAD",
 				redirect: "manual",
 			})
 				.then((response) => {
+					logger.log(
+						LogLevels.debug,
+						"Received a response to our HEAD request from the user's web address."
+					);
 					// Check if this was a temporary redirect
 					if (response.status === 302 || response.status === 307) {
 						if (response.headers.get("Location") === null) {
@@ -91,6 +109,11 @@ const getProfileAndDiscoveryUrls = (
 								"We were given a temporary redirect to follow but the Location HTTP header was missing."
 							);
 						}
+
+						logger.log(
+							LogLevels.debug,
+							"Found a temporary redirect, following redirect."
+						);
 
 						fetch(response.headers.get("Location") as string)
 							.then((response) => {
@@ -101,6 +124,10 @@ const getProfileAndDiscoveryUrls = (
 
 								// Profile/Identity URL is the one entered by user
 								// Discovery URL is the redirected URL
+								logger.log(
+									LogLevels.debug,
+									"Received a response from the redirected URL. Setting profile and discovery URLs now."
+								);
 								profileUrl = new URL(assumedUrl.toString());
 								discoveryUrl = new URL(
 									response.headers.get("Location") as string
@@ -118,10 +145,16 @@ const getProfileAndDiscoveryUrls = (
 						response.status === 308
 					) {
 						// Profile and discovery URL are, both, the redirected URL
-						if (response.headers.get("Location") === null)
+						logger.log(
+							LogLevels.debug,
+							"Permanent redirect found. Assuming the redirected URL to be correct web address for this user."
+						);
+
+						if (response.headers.get("Location") === null) {
 							throw new Error(
 								"We were given a permanent redirect to follow, but the Location HTTP header was missing."
 							);
+						}
 
 						profileUrl = discoveryUrl = new URL(
 							response.headers.get("Location") as string
@@ -132,6 +165,10 @@ const getProfileAndDiscoveryUrls = (
 						});
 					} else {
 						// Fallback. The URL we have is what we need to use.
+						logger.log(
+							LogLevels.debug,
+							"We did not find either a temporary or a permanent redirect."
+						);
 						profileUrl = discoveryUrl = assumedUrl;
 						resolve({
 							profileUrl: profileUrl.toString(),

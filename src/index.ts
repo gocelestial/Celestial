@@ -25,6 +25,7 @@ const redis = require("redis");
 const RedisStore = require("connect-redis")(session);
 const redisClient = redis.createClient({
 	password: REDIS_PASSWORD,
+	// This is the service name. Docker resolve this for us if both the services are on the same network.
 	host: "redis",
 });
 
@@ -39,6 +40,9 @@ import { logoutRouter } from "./routes/logout";
 // Our interface and enums
 import { DefaultPageData } from "./interface/DefaultPageData";
 import { AppUserState } from "./enumerator/AppUserState";
+import { LogLevels } from "./enumerator/LogLevels";
+import { AppError } from "./interface/AppError";
+import { logger } from "./lib/logger";
 
 // Set up a CSP
 const directives = {
@@ -48,9 +52,11 @@ const directives = {
 	imgSrc: ["https://twemoji.maxcdn.com/"],
 };
 
+// Allow unsafe scripts locally
 if (process.env.NODE_ENV === "development")
 	directives.scriptSrc.push("'unsafe-eval'");
 
+// Employ the CSP
 app.use(
 	helmet.contentSecurityPolicy({
 		directives,
@@ -90,11 +96,17 @@ app.use(
 	})
 );
 
-// Set appState is identity available in session
+// Set appState for this session
+// TODO This feels very hacky. Surely there is a better way to "reload" a session upon a re-visit?
 app.use(
 	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
-		if (req.session?.validatedUserProfileURL)
+		if (req.session?.isLoggedIn) {
+			logger.log(
+				LogLevels.verbose,
+				"User appears to be already logged in as per our session data. Setting appState to 'User'."
+			);
 			req.session.appState = AppUserState.User;
+		}
 		next();
 	}
 );
@@ -106,13 +118,31 @@ app.get("/", (req: ExpressRequest, res: ExpressResponse) => {
 		subtitle: APP_SUBTITLE,
 		pageTitle: "Hello! 👋",
 		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.validatedUserProfileURL || null,
+		userIdentity: req.session?.user?.profileUrl || null,
 		error: req.session?.error || null,
 	};
 
+	// TODO error to be removed from here - we've set up a dedicated error page.
+	// We've consumed the error into the pageData object. Clear it now.
 	if (req.session && req.session?.error) req.session.error = null;
 
 	res.render("index", pageData);
+});
+
+app.get("/error", (req: ExpressRequest, res: ExpressResponse) => {
+	const pageData: DefaultPageData = {
+		title: APP_TITLE,
+		subtitle: APP_SUBTITLE,
+		pageTitle: "An error occured",
+		appState: req.session?.appState || AppUserState.Guest,
+		userIdentity: req.session?.user?.profileUrl || null,
+		error: req.session?.error || null,
+	};
+
+	// We've consumed the error into the pageData object. Clear it now.
+	if (req.session && req.session?.error) req.session.error = null;
+
+	res.render("error", pageData);
 });
 
 app.use("/login/", authRouter);
@@ -121,6 +151,27 @@ app.use("/logout/", logoutRouter);
 
 app.use("/publish/", publishRouter);
 
+// Generic error handler
+// Currently only handles errors with the code "AppError"
+// Rest are passed onto Express' default handler
+app.use(
+	(
+		err: AppError,
+		req: ExpressRequest,
+		res: ExpressResponse,
+		next: ExpressNextFunction
+	) => {
+		if (err?.code === "AppError") {
+			logger.log(LogLevels.error, err.message, {
+				user: req.session?.user?.profileUrl,
+			});
+			if (req.session) req.session.error = err.message;
+			res.redirect(302, "/error");
+		}
+		next(err);
+	}
+);
+
 app.listen(PORT, (): void => {
-	console.log(`Server is listening on ${PORT}`);
+	logger.log(LogLevels.info, `Server is listening on ${PORT}`);
 });

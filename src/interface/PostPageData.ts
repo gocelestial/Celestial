@@ -1,7 +1,13 @@
 import { DefaultPageData } from "./DefaultPageData";
 
 interface PostPageData extends DefaultPageData {
-	postLink: string;
+	formDefaults?: {
+		published?: {
+			date: string;
+			time: string;
+		};
+	};
+	postLink?: string;
 	syndicationLinks?: string[];
 }
 

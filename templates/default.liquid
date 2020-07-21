@@ -20,7 +20,7 @@
 
 			<h2>{{ pageTitle }}</h2>
 
-			{% if userIdentity %}
+			{% if appState == "User" && userIdentity %}
 			<p>Logged in as <span class="user-login">{{ userIdentity }}</span>. (<a href="/logout/">Logout</a>)</p>
 			{% endif %}
 		</header>
