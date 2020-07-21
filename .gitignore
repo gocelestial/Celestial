@@ -1,3 +1,6 @@
+# Docker
+docker-compose.yml
+
 # Development
 node_modules
 *.log

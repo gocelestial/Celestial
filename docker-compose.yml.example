@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  web:
+    build: ./
+    environment:
+      - PORT=4000
+      - NODE_ENV=development
+      - TZ=Asia/Kolkata
+      - REDIS_PASSWORD=
+    volumes:
+      - type: bind
+        source: ./
+        target: /app
+    networks: 
+      - indieweb
+      - internal
+    ports:
+      - "4000:4000"
+    depends_on: 
+      - redis
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    networks:
+      - internal
+    volumes:
+      - redis:/data
+      - ./conf/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+  indiekit:
+    build: 
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - TZ=Asia/Kolkata
+      - GITHUB_REPO=
+      - GITHUB_TOKEN=
+      - GITHUB_USER=
+      - GITHUB_BRANCH=
+      - INDIEKIT_CACHE_EXPIRES=
+      - INDIEKIT_CONFIG_PATH=
+      - INDIEKIT_LOCALE=
+      - INDIEKIT_URL=
+    networks:
+      - indieweb
+    volumes:
+      - type: bind
+        source: 
+        target: /app
+    ports:
+      - "3000:3000"
+
+volumes:
+  redis:
+
+networks: 
+  indieweb:
+  internal:
