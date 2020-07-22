@@ -47,9 +47,8 @@ import { logger } from "./lib/logger";
 // Set up a CSP
 const directives = {
 	defaultSrc: ["'self'"],
-	// styleSrc: ["'self'"],
 	scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
-	imgSrc: ["'self'", "https://twemoji.maxcdn.com/"],
+	imgSrc: ["'self'", "https://rusingh.com", "https://twemoji.maxcdn.com/"],
 };
 
 // Allow unsafe scripts locally
@@ -122,7 +121,8 @@ app.get("/", (req: ExpressRequest, res: ExpressResponse) => {
 		user: {
 			microformats: {
 				name: req.session?.user?.microformats?.name,
-				photo: req.session?.user?.microformats?.photo,
+				// photo:
+				// 	req.session?.user?.microformats?.photo,
 			},
 		},
 		error: req.session?.error || null,

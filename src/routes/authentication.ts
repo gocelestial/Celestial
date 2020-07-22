@@ -8,17 +8,20 @@ import httpLinkHeader from "http-link-header";
 import { URLSearchParams } from "url";
 import got from "got";
 import cheerio from "cheerio";
-import { mf2 } from "microformats-parser";
+import set from "set-value";
 
 // Env and other constants
 import { APP_TITLE, APP_SUBTITLE, INDIEAUTH_CLIENT } from "../config/constants";
 
 // Our interface, enums, and middleware
 import { DefaultPageData } from "../interface/DefaultPageData";
+
 import { AppUserState } from "../enumerator/AppUserState";
 import { LogLevels } from "../enumerator/LogLevels";
+
 import { csrfProtection } from "../middleware/csrfProtection";
 import { urlEncodedParser } from "../middleware/urlEncodedParser";
+
 import { getProfileAndDiscoveryUrls } from "../lib/userProfile";
 import {
 	endpointsWanted,
@@ -26,6 +29,7 @@ import {
 	findEndpointInHeaders,
 } from "../lib/endpoint";
 import { logger } from "../lib/logger";
+import { parseProperty } from "../lib/microformats";
 
 const authRouter: express.Router = express.Router();
 
@@ -252,41 +256,52 @@ authRouter.post(
 
 						logger.log(
 							LogLevels.debug,
-							"Attempting to set a profile picture and name for the user."
+							"Attempting to find a name and photo for the user."
 						);
-						// TODO Move to its own lib/function
-						const mf = mf2(response.body, {
-							baseUrl: req.session?.user?.discoveryUrl,
-						});
-						const userMicroformatsIdentity = mf.items.find(
-							(item) => item?.type?.[0] === "h-card"
+
+						const name = parseProperty(
+							response.body,
+							req.session?.user?.discoveryUrl,
+							"h-card",
+							"name"
 						);
+
+						const photo = parseProperty(
+							response.body,
+							req.session?.user?.discoveryUrl,
+							"h-card",
+							"photo"
+						);
+
 						if (req.session) {
 							logger.log(
 								LogLevels.debug,
-								"Setting a profile picture and name for the user.",
+								"Saving the name and a URL to the photo for the user to session now.",
 								{
 									user: req.session?.user?.profileUrl,
-									name:
-										userMicroformatsIdentity?.properties
-											?.name,
-									photo:
-										userMicroformatsIdentity?.properties
-											?.photo,
+									name: name
+										? name[0]
+										: "Did not find any name.",
+									// photo: photo
+									// 	? photo[0].value
+									// 	: "Did not find any photo.",
 								}
 							);
-							// TODO Better way to initialize object tree?
-							req.session.user.microformats = {};
-							if (userMicroformatsIdentity?.properties?.photo)
-								req.session.user.microformats.photo =
-									userMicroformatsIdentity.properties.photo;
-							if (userMicroformatsIdentity?.properties?.name)
-								req.session.user.microformats.name =
-									userMicroformatsIdentity.properties.name;
+
+							if (name)
+								set(
+									req.session,
+									"user.microformats.name",
+									name[0]
+								);
+
+							// TODO
+							// ! Filed a bug here - https://github.com/aimee-gm/microformats-parser/issues/97
+							// if (photo)
+							// 	set(req.session, "user.microformats.photo", photo[0].value)
 						}
 
 						// We have all the endpoints. If we're here, there was no need to parse page source.
-						logger.log(LogLevels.silly, req.session);
 						logger.log(
 							LogLevels.debug,
 							"Endpoints collected from HTTP headers and/or by parsing DOM. Redirecting to our internal auth endpoint to start authorization flow.",
