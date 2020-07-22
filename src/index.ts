@@ -24,7 +24,6 @@ const redisClient = redis.createClient({
 	host: "redis",
 });
 
-// App and app details
 const app = express();
 
 // Route imports
@@ -32,7 +31,7 @@ import { publishRouter } from "./routes/publish";
 import { authRouter } from "./routes/authentication";
 import { logoutRouter } from "./routes/logout";
 
-// Our interface and enums
+// Our interface, enums, libs, etc.
 import { AppUserState } from "./enumerator/AppUserState";
 import { LogLevels } from "./enumerator/LogLevels";
 
@@ -43,21 +42,22 @@ import { logger } from "./lib/logger";
 import { pageDataHelper } from "./lib/pageDataHelper";
 import { resetEphemeralSessionData } from "./lib/session";
 
-// Set up a CSP
-const directives = {
-	defaultSrc: ["'self'"],
-	scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
-	imgSrc: ["'self'", "https://rusingh.com", "https://twemoji.maxcdn.com/"],
-};
+// // Allow unsafe scripts locally
+// if (process.env.NODE_ENV === "development")
+// 	directives.scriptSrc.push("'unsafe-eval'");
 
-// Allow unsafe scripts locally
-if (process.env.NODE_ENV === "development")
-	directives.scriptSrc.push("'unsafe-eval'");
-
-// Employ the CSP
+// Employ a CSP
 app.use(
 	helmet.contentSecurityPolicy({
-		directives,
+		directives: {
+			defaultSrc: ["'self'"],
+			scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
+			imgSrc: [
+				"'self'",
+				"https://rusingh.com",
+				"https://twemoji.maxcdn.com/",
+			],
+		},
 	})
 );
 
@@ -74,20 +74,16 @@ app.set("view engine", "liquid");
 app.use(express.static("assets"));
 
 // Create a session for every request
+// https://www.npmjs.com/package/express-session
 app.use(
 	session({
-		// This is the secret used to sign the session ID cookie. This can be either a string for a single secret, or an array of multiple secrets. If an array of secrets is provided, only the first element will be used to sign the session ID cookie, while all the elements will be considered when verifying the signature in requests.
 		secret: "indie-aww",
-		// Forces a session that is “uninitialized” to be saved to the store. A session is uninitialized when it is new but not modified. Choosing false is useful for implementing login sessions, reducing server storage usage, or complying with laws that require permission before setting a cookie. Choosing false will also help with race conditions where a client makes multiple parallel requests without a session.
 		saveUninitialized: false,
-		// How do I know if this is necessary for my store? The best way to know is to check with your store if it implements the touch method. If it does, then you can safely set resave: false. If it does not implement the touch method and your store sets an expiration date on stored sessions, then you likely need resave: true.
 		resave: false,
-		// Settings object for the session ID cookie. The default value is { path: '/', httpOnly: true, secure: false, maxAge: null }.
 		cookie: {
 			maxAge: 1000 * 60 * 60 * 24, // 1 day
 			sameSite: false,
 		},
-		// The session store instance, defaults to a new MemoryStore instance.
 		store: new RedisStore({
 			client: redisClient,
 		}),
@@ -121,9 +117,6 @@ app.get("/", (req: ExpressRequest, res: ExpressResponse) => {
 			pageTitle: "Hello! 👋",
 		}) as UserPageData;
 	}
-
-	// TODO error to be removed from here - we've set up a dedicated error page.
-	resetEphemeralSessionData(req, ["error"]);
 
 	res.render("index", pageData);
 });
@@ -166,6 +159,7 @@ app.use(
 				user: req.session?.user?.profileUrl,
 			});
 			if (req.session) req.session.error = err.message;
+			resetEphemeralSessionData(req, ["error"]);
 			res.redirect(302, "/error");
 		}
 		next(err);
