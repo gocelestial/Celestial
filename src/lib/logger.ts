@@ -17,7 +17,12 @@ const logger = createLogger({
 if (process.env.NODE_ENV !== "production") {
 	logger.add(
 		new transports.Console({
-			format: combine(timestamp(), prettyPrint()),
+			format: combine(
+				timestamp({
+					format: "YYYY-MM-DD HH:mm:ss Z",
+				}),
+				prettyPrint()
+			),
 		})
 	);
 }
