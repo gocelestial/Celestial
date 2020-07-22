@@ -33,16 +33,22 @@ publishRouter.use(
 	}
 );
 
-publishRouter.get("/success/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: PostPageData = {
+// move this somewhere else if desired
+const pageDataHelper = function(req: ExpressRequest, data: Object) : DefaultPageData {
+    return {
 		title: APP_TITLE,
 		subtitle: APP_SUBTITLE,
-		pageTitle: "Post Successfully Created",
 		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
+		userIdentity: req.session?.user?.profileUrl || null
+    }
+}
+
+publishRouter.get("/success/", (req: ExpressRequest, res: ExpressResponse) => {
+	const pageData: PostPageData = pageDataHelper(req, {
+		pageTitle: "Post Successfully Created",
 		postLink: req.session?.postLink,
 		// TODO Add syndication links when available
-	};
+	});
 
 	// Now reset it back.
 	if (req.session) req.session.postLink = null;
@@ -52,24 +58,16 @@ publishRouter.get("/success/", (req: ExpressRequest, res: ExpressResponse) => {
 // TODO All of the endpoints below appear to be a bit repetitive. We can probably abstract away many parts of the process into generic libs as well.
 
 publishRouter.get("/article/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Article",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	});
 
 	res.render("publish/article", pageData);
 });
 
 publishRouter.get("/note/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: PostPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Note",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
 		error: req.session?.error || null,
 		formDefaults: {
 			published: {
@@ -85,7 +83,7 @@ publishRouter.get("/note/", (req: ExpressRequest, res: ExpressResponse) => {
 				).toString(),
 			},
 		},
-	};
+	});
 
 	if (req.session && req.session?.error) req.session.error = null;
 
