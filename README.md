@@ -32,6 +32,8 @@ Although spec compliance should ensure it works with any Micropub server, I will
         - [ ] Set up with a transport such as [timber.io](https://timber.io)
     - [ ] Modular codebase
     - [ ] Best practices
+    - [ ] [Express security checklist](https://expressjs.com/en/advanced/best-practice-security.html)
+    - [ ] Unit tests
 - [ ] [Types of posts](https://indieweb.org/posts#Types_of_Posts) to be supported:
     - [ ] 📄 [Article](https://indieweb.org/article)
     - [ ] 📔 [Note](https://indieweb.org/note)
@@ -63,9 +65,25 @@ Although spec compliance should ensure it works with any Micropub server, I will
 
 __Not ready for public use.__
 
+You are encouraged to self-host this web application. While you can use the example server hosted on Heroku, you may run into some limitations.
+
 * `git clone git@github.com:hirusi/splisher.git`
 * `heroku apps:create [name]`
 * `git push heroku master`
+
+### Limitations
+
+* We have implemented a strong Content Security Policy, and only allow the browser to load images from certain specified domains. I will **not** be changing this setting on the example server.
+    * **Workaround**: If you self-host, it's easy to add a new domain to the list of allowed domains. This will nicely show your profile photo (based on microformats2) once you log in. To do this, head over to the `src/index.ts` file and change the following block to include your domain:
+    ```
+    // Set up a CSP
+    const directives = {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
+        imgSrc: ["'self'", "https://twemoji.maxcdn.com/", "https://yourdomain.com"],
+    };
+    ```
+* In the event the example server runs into excessive traffic, it will not scale. I cannot afford paying for extra server resources. I have aimed to make self-hosting easy for exactly this reason. If you are facing any issue in doing so, please open an issue on the repository and someone should be able to help you.
 
 ## Local Development
 
