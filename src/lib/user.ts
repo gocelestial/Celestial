@@ -1,10 +1,11 @@
-// TODO More apt file name
-
 import fetch from "node-fetch";
 import isIp from "is-ip";
+import { Request as ExpressRequest } from "express";
+import set from "set-value";
 
-import { logger } from "../lib/logger";
 import { LogLevels } from "../enumerator/LogLevels";
+
+import { logger } from "./logger";
 
 const makeUrl = (url: string): URL => {
 	// Has the user entered any protocol at all - simple check for '://'
@@ -180,4 +181,12 @@ const getProfileAndDiscoveryUrls = (
 		}
 	});
 
-export { getProfileAndDiscoveryUrls };
+/**
+ * @param req Make sure the request body has timezone property available. If not, the timezone will be set to undefined.
+ */
+const setTimezone = (req: ExpressRequest): void => {
+	if (req.session) set(req.session, "user.timezone", req.body?.timezone);
+	logger.log(LogLevels.info, `User timezone set to ${req.body?.timezone}`);
+};
+
+export { getProfileAndDiscoveryUrls, setTimezone };

@@ -9,12 +9,13 @@ import { URLSearchParams } from "url";
 import got from "got";
 import cheerio from "cheerio";
 import set from "set-value";
+import { Image } from "microformats-parser/dist/types";
 
 // Env and other constants
-import { APP_TITLE, APP_SUBTITLE, INDIEAUTH_CLIENT } from "../config/constants";
+import { INDIEAUTH_CLIENT } from "../config/constants";
 
 // Our interface, enums, and middleware
-import { DefaultPageData } from "../interface/DefaultPageData";
+import { AuthPageData } from "../interface/PageData";
 
 import { AppUserState } from "../enumerator/AppUserState";
 import { LogLevels } from "../enumerator/LogLevels";
@@ -22,7 +23,7 @@ import { LogLevels } from "../enumerator/LogLevels";
 import { csrfProtection } from "../middleware/csrfProtection";
 import { urlEncodedParser } from "../middleware/urlEncodedParser";
 
-import { getProfileAndDiscoveryUrls } from "../lib/userProfile";
+import { getProfileAndDiscoveryUrls, setTimezone } from "../lib/user";
 import {
 	endpointsWanted,
 	findEndpointInBody,
@@ -30,6 +31,8 @@ import {
 } from "../lib/endpoint";
 import { logger } from "../lib/logger";
 import { parseProperty } from "../lib/microformats";
+import { pageDataHelper } from "../lib/pageDataHelper";
+import { resetEphemeralSessionData } from "../lib/session";
 
 const authRouter: express.Router = express.Router();
 
@@ -52,23 +55,19 @@ authRouter.get(
 	csrfProtection,
 	(req: ExpressRequest, res: ExpressResponse) => {
 		// Is there any error?
-		const pageData: DefaultPageData = {
-			title: APP_TITLE,
-			subtitle: APP_SUBTITLE,
+		const pageData: AuthPageData = pageDataHelper(req, {
 			pageTitle: "Login",
-			appState: req.session?.appState || AppUserState.Guest,
+			error: req.session?.error || null,
 			csrfToken: req.csrfToken(),
-		};
+		});
 
 		logger.log(
 			LogLevels.silly,
 			`Sending CSRF token ${pageData.csrfToken} for session ID ${req.session?.id}`
 		);
 
-		pageData.error = req.session?.error;
-		if (req.session) req.session.error = null;
+		resetEphemeralSessionData(req, ["error"]);
 
-		// Render the login page with a token
 		res.render("login", pageData);
 	}
 );
@@ -92,17 +91,8 @@ authRouter.post(
 			});
 		}
 
-		// Set user's timezone
 		// TODO Let them select this explicity in a config area if they're not happy with assumed timezone, or simply want to change it temporarily.
-		if (req.session && req.body?.timezone) {
-			req.session.user = Object.assign({}, req.session.user, {
-				timezone: req.body.timezone,
-			});
-			logger.log(
-				LogLevels.info,
-				`User timezone set to ${req.body.timezone}`
-			);
-		}
+		if (req.session && req.body?.timezone) setTimezone(req);
 
 		try {
 			logger.log(
@@ -115,11 +105,8 @@ authRouter.post(
 
 			// We have the Profile URL and the Discovery URL
 			if (req.session) {
-				req.session.user = Object.assign(
-					{},
-					req.session.user,
-					response
-				);
+				set(req.session, "user.profileUrl", response.profileUrl);
+				set(req.session, "user.discoveryUrl", response.discoveryUrl);
 				logger.log(
 					LogLevels.debug,
 					`User profile and discovery URLs set to ${response.profileUrl} and ${response.discoveryUrl} respectively.`,
@@ -151,8 +138,6 @@ authRouter.post(
 				);
 			}
 
-			if (req.session) req.session.endpoints = {};
-
 			// Look for required headers and collect whatever we can into session data
 			logger.log(
 				LogLevels.debug,
@@ -175,9 +160,11 @@ authRouter.post(
 					);
 					if (endpoint) {
 						if (req.session)
-							req.session.endpoints[
-								endpointWanted.key
-							] = endpoint;
+							set(
+								req.session,
+								`endpoints.${endpointWanted.key}`,
+								endpoint
+							);
 						logger.log(
 							LogLevels.debug,
 							`${endpointWanted.name} endpoint found in Link headers.`,
@@ -241,9 +228,11 @@ authRouter.post(
 								);
 								if (endpoint instanceof Error) throw endpoint;
 								if (req.session) {
-									req.session.endpoints[
-										endpointWanted.key
-									] = endpoint;
+									set(
+										req.session,
+										`endpoints.${endpointWanted.key}`,
+										endpoint
+									);
 
 									logger.log(
 										LogLevels.debug,
@@ -282,9 +271,11 @@ authRouter.post(
 									name: name
 										? name[0]
 										: "Did not find any name.",
-									// photo: photo
-									// 	? photo[0].value
-									// 	: "Did not find any photo.",
+									photo: photo
+										? (photo[0] as Image).value
+											? (photo[0] as Image).value
+											: (photo[0] as Image)
+										: "Did not find any photo.",
 								}
 							);
 
@@ -295,10 +286,16 @@ authRouter.post(
 									name[0]
 								);
 
-							// TODO
-							// ! Filed a bug here - https://github.com/aimee-gm/microformats-parser/issues/97
-							// if (photo)
-							// 	set(req.session, "user.microformats.photo", photo[0].value)
+							if (photo)
+								set(
+									req.session,
+									"user.microformats.photo",
+									photo
+										? (photo[0] as Image).value
+											? (photo[0] as Image).value
+											: (photo[0] as Image)
+										: undefined
+								);
 						}
 
 						// We have all the endpoints. If we're here, there was no need to parse page source.

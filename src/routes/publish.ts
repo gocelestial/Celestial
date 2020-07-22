@@ -6,17 +6,16 @@ import {
 } from "express";
 import fetch from "node-fetch";
 import { URLSearchParams } from "url";
-
-// Env and other constants
-import { APP_TITLE, APP_SUBTITLE } from "../config/constants";
-
-// Our interface, enums, middleware
-import { DefaultPageData } from "../interface/DefaultPageData";
-import { PostPageData } from "../interface/PostPageData";
-import { AppUserState } from "../enumerator/AppUserState";
-import { urlEncodedParser } from "../middleware/urlEncodedParser";
-import { utcToUserTimezone, userTimezoneToUtc } from "../lib/date";
 import { parseISO } from "date-fns";
+
+// Our interface, enums, middleware, libs
+import { PostPageData } from "../interface/PageData";
+
+import { urlEncodedParser } from "../middleware/urlEncodedParser";
+
+import { utcToUserTimezone, userTimezoneToUtc } from "../lib/date";
+import { pageDataHelper } from "../lib/pageDataHelper";
+import { resetEphemeralSessionData } from "../lib/session";
 
 const publishRouter = Router();
 
@@ -33,34 +32,21 @@ publishRouter.use(
 	}
 );
 
-// move this somewhere else if desired
-const pageDataHelper = function(req: ExpressRequest, data: Object) : DefaultPageData {
-    return {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null
-    }
-}
-
 publishRouter.get("/success/", (req: ExpressRequest, res: ExpressResponse) => {
 	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Post Successfully Created",
 		postLink: req.session?.postLink,
-		// TODO Add syndication links when available
-	});
+	}) as PostPageData;
 
-	// Now reset it back.
-	if (req.session) req.session.postLink = null;
+	resetEphemeralSessionData(req, ["postLink"]);
+
 	res.render("publish/success", pageData);
 });
-
-// TODO All of the endpoints below appear to be a bit repetitive. We can probably abstract away many parts of the process into generic libs as well.
 
 publishRouter.get("/article/", (req: ExpressRequest, res: ExpressResponse) => {
 	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Article",
-	});
+	}) as PostPageData;
 
 	res.render("publish/article", pageData);
 });
@@ -68,7 +54,6 @@ publishRouter.get("/article/", (req: ExpressRequest, res: ExpressResponse) => {
 publishRouter.get("/note/", (req: ExpressRequest, res: ExpressResponse) => {
 	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Note",
-		error: req.session?.error || null,
 		formDefaults: {
 			published: {
 				date: utcToUserTimezone(
@@ -83,9 +68,7 @@ publishRouter.get("/note/", (req: ExpressRequest, res: ExpressResponse) => {
 				).toString(),
 			},
 		},
-	});
-
-	if (req.session && req.session?.error) req.session.error = null;
+	}) as PostPageData;
 
 	res.render("publish/note", pageData);
 });
@@ -133,121 +116,81 @@ publishRouter.post(
 );
 
 publishRouter.get("/reply/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Reply",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/reply", pageData);
 });
 
 publishRouter.get("/like/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Like",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/like", pageData);
 });
 
 publishRouter.get("/repost/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Repost",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/repost", pageData);
 });
 
 publishRouter.get("/bookmark/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Bookmark",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/bookmark", pageData);
 });
 
 publishRouter.get("/photo/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Photo",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/photo", pageData);
 });
 
 publishRouter.get("/video/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Video",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/video", pageData);
 });
 
 publishRouter.get("/audio/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Audio",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/audio", pageData);
 });
 
 publishRouter.get("/checkin/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Checkin",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/checkin", pageData);
 });
 
 publishRouter.get("/event/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "Event",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/event", pageData);
 });
 
 publishRouter.get("/rsvp/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
+	const pageData: PostPageData = pageDataHelper(req, {
 		pageTitle: "RSVP",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-	};
+	}) as PostPageData;
 
 	res.render("publish/rsvp", pageData);
 });

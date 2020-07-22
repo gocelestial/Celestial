@@ -6,12 +6,7 @@ import express, {
 } from "express";
 
 // Env and other constants
-import {
-	PORT,
-	REDIS_PASSWORD,
-	APP_TITLE,
-	APP_SUBTITLE,
-} from "./config/constants";
+import { PORT, REDIS_PASSWORD } from "./config/constants";
 
 // Template engine
 import { Liquid } from "liquidjs";
@@ -38,11 +33,15 @@ import { authRouter } from "./routes/authentication";
 import { logoutRouter } from "./routes/logout";
 
 // Our interface and enums
-import { DefaultPageData } from "./interface/DefaultPageData";
 import { AppUserState } from "./enumerator/AppUserState";
 import { LogLevels } from "./enumerator/LogLevels";
+
+import { DefaultPageData, UserPageData } from "./interface/PageData";
 import { AppError } from "./interface/AppError";
+
 import { logger } from "./lib/logger";
+import { pageDataHelper } from "./lib/pageDataHelper";
+import { resetEphemeralSessionData } from "./lib/session";
 
 // Set up a CSP
 const directives = {
@@ -112,47 +111,36 @@ app.use(
 
 // Routes
 app.get("/", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
-		pageTitle: "Hello! 👋",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl || null,
-		user: {
-			microformats: {
-				name: req.session?.user?.microformats?.name,
-				// photo:
-				// 	req.session?.user?.microformats?.photo,
-			},
-		},
-		error: req.session?.error || null,
-	};
+	let pageData: DefaultPageData | UserPageData;
+	if (req.session?.appState === AppUserState.User) {
+		pageData = pageDataHelper(req, {
+			pageTitle: "Hello! 👋",
+		}) as DefaultPageData;
+	} else {
+		pageData = pageDataHelper(req, {
+			pageTitle: "Hello! 👋",
+		}) as UserPageData;
+	}
 
 	// TODO error to be removed from here - we've set up a dedicated error page.
-	// We've consumed the error into the pageData object. Clear it now.
-	if (req.session && req.session?.error) req.session.error = null;
+	resetEphemeralSessionData(req, ["error"]);
 
 	res.render("index", pageData);
 });
 
 app.get("/error", (req: ExpressRequest, res: ExpressResponse) => {
-	const pageData: DefaultPageData = {
-		title: APP_TITLE,
-		subtitle: APP_SUBTITLE,
-		pageTitle: "Error",
-		appState: req.session?.appState || AppUserState.Guest,
-		userIdentity: req.session?.user?.profileUrl,
-		user: {
-			microformats: {
-				name: req.session?.user?.microformats?.name,
-				photo: req.session?.user?.microformats?.photo,
-			},
-		},
-		error: req.session?.error || null,
-	};
+	let pageData: DefaultPageData | UserPageData;
+	if (req.session?.appState === AppUserState.User) {
+		pageData = pageDataHelper(req, {
+			pageTitle: "Error",
+		}) as DefaultPageData;
+	} else {
+		pageData = pageDataHelper(req, {
+			pageTitle: "Error",
+		}) as UserPageData;
+	}
 
-	// We've consumed the error into the pageData object. Clear it now.
-	if (req.session && req.session?.error) req.session.error = null;
+	resetEphemeralSessionData(req, ["error"]);
 
 	res.render("error", pageData);
 });
