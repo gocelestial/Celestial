@@ -6,16 +6,17 @@ import {
 } from "express";
 import fetch from "node-fetch";
 import { URLSearchParams } from "url";
-import { parseISO } from "date-fns";
+import { DateTime } from "luxon";
 
 // Our interface, enums, middleware, libs
 import { PostPageData } from "../interface/PageData";
 
 import { urlEncodedParser } from "../middleware/urlEncodedParser";
 
-import { utcToUserTimezone, userTimezoneToUtc } from "../lib/date";
 import { pageDataHelper } from "../lib/pageDataHelper";
 import { resetEphemeralSessionData } from "../lib/session";
+import { logger } from "../lib/logger";
+import { LogLevels } from "../enumerator/LogLevels";
 
 const publishRouter = Router();
 
@@ -56,16 +57,14 @@ publishRouter.get("/note/", (req: ExpressRequest, res: ExpressResponse) => {
 		pageTitle: "Note",
 		formDefaults: {
 			published: {
-				date: utcToUserTimezone(
-					new Date(),
-					req.session?.user?.timezone,
-					"yyyy-MM-dd"
-				).toString(),
-				time: utcToUserTimezone(
-					new Date(),
-					req.session?.user?.timezone,
-					"HH:mm"
-				).toString(),
+				date: DateTime.utc()
+					.setZone(req.session?.user?.timezone)
+					.toFormat("yyyy-MM-dd")
+					.toString(),
+				time: DateTime.utc()
+					.setZone(req.session?.user?.timezone)
+					.toFormat("HH:mm")
+					.toString(),
 			},
 		},
 	}) as PostPageData;
@@ -78,29 +77,70 @@ publishRouter.post(
 	urlEncodedParser,
 	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
 		// Make a POST url encoded request to the micropub endpoint, along with the access token
-		// console.log(req.body);
-		// debugger;
-
 		// The date and time we receive are in user's tz
-		// Looking at the source code of Indiekit, we'd like to send the date as an ISO8601 date (any timezone will work as they format it to UTC ultimately)
-		const published = new Date(`${req.body.date} ${req.body.time}`);
+		// Looking at the source code of Indiekit, we'd like to send the date as an ISO8601 date (any timezone will work as they format it to UTC ultimately - but we'll send it in UTC for hopefully greater interoperability)
+		const [year, month, day] = req.body.date.split("-");
+		const [hour, minute] = req.body.time.split(":");
+		const published = DateTime.fromObject({
+			year,
+			month,
+			day,
+			hour,
+			minute,
+			zone: req.session?.user?.timezone,
+		})
+			.toUTC()
+			.toISO();
 
 		const params = new URLSearchParams();
 		params.append("h", req.body.h);
 		params.append("content", req.body.note);
 		params.append("published", published.toString());
 
+		logger.log(
+			LogLevels.http,
+			"Sending publish request to your Micropub server.",
+			{
+				h: params.get("h"),
+				content: params.get("content"),
+				published: params.get("published"),
+			}
+		);
+
 		fetch(req.session?.endpoints?.micropub, {
 			method: "POST",
 			headers: {
 				Accept: "application/json",
-				Authorization: `Bearer ${req.session?.access_token}`,
+				Authorization: `Bearer ${req.session?.indieauth?.access_token}`,
 			},
 			body: params,
 		})
 			.then((response) => {
-				if (!response.ok) throw new Error("Could not create post.");
+				if (!response.ok) {
+					response
+						.json()
+						.then((responseData) => {
+							logger.log(
+								LogLevels.error,
+								"Received an error from the Micropub server.",
+								{ error: responseData }
+							);
+						})
+						.catch((error) => {
+							logger.log(
+								LogLevels.error,
+								"Received an error from the Micropub server but could not read it.",
+								{ error }
+							);
+							throw new Error(error);
+						});
+				}
 
+				logger.log(
+					LogLevels.http,
+					"Received a response from the Micropub server",
+					{ response }
+				);
 				if (response.headers.get("Location"))
 					if (req.session)
 						req.session.postLink = response.headers.get("Location");
