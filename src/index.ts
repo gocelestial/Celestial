@@ -42,22 +42,21 @@ import { logger } from "./lib/logger";
 import { pageDataHelper } from "./lib/pageDataHelper";
 import { resetEphemeralSessionData } from "./lib/session";
 
-// // Allow unsafe scripts locally
-// if (process.env.NODE_ENV === "development")
-// 	directives.scriptSrc.push("'unsafe-eval'");
+// Create a CSP
+const directives = {
+	defaultSrc: ["'self'"],
+	scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
+	imgSrc: ["'self'", "https://rusingh.com", "https://twemoji.maxcdn.com/"],
+};
+
+// Allow unsafe scripts locally - required for Webpack output to work
+if (process.env.NODE_ENV === "development")
+	directives.scriptSrc.push("'unsafe-eval'");
 
 // Employ a CSP
 app.use(
 	helmet.contentSecurityPolicy({
-		directives: {
-			defaultSrc: ["'self'"],
-			scriptSrc: ["'self'", "https://twemoji.maxcdn.com/"],
-			imgSrc: [
-				"'self'",
-				"https://rusingh.com",
-				"https://twemoji.maxcdn.com/",
-			],
-		},
+		directives,
 	})
 );
 
