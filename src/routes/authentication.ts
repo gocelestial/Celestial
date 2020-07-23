@@ -9,7 +9,6 @@ import { URLSearchParams } from "url";
 import got from "got";
 import cheerio from "cheerio";
 import set from "set-value";
-import { Image } from "microformats-parser/dist/types";
 
 // Env and other constants
 import { INDIEAUTH_CLIENT } from "../config/constants";
@@ -23,16 +22,20 @@ import { LogLevels } from "../enumerator/LogLevels";
 import { csrfProtection } from "../middleware/csrfProtection";
 import { urlEncodedParser } from "../middleware/urlEncodedParser";
 
-import { getProfileAndDiscoveryUrls, setTimezone } from "../lib/user";
+import {
+	getProfileAndDiscoveryUrls,
+	setTimezone,
+	setProfileDetails,
+} from "../lib/user";
 import {
 	endpointsWanted,
-	findEndpointInBody,
-	findEndpointInHeaders,
+	setEndpointsFromHeaders,
+	setEndpointsFromBody,
 } from "../lib/endpoint";
 import { logger } from "../lib/logger";
-import { parseProperty } from "../lib/microformats";
 import { pageDataHelper } from "../lib/pageDataHelper";
 import { resetEphemeralSessionData } from "../lib/session";
+import { setMicropubCapabilities } from "../lib/micropub";
 
 const authRouter: express.Router = express.Router();
 
@@ -81,7 +84,6 @@ authRouter.post(
 		res: ExpressResponse,
 		next: ExpressNextFunction
 	) => {
-		// TODO Fix nesting hell
 		logger.log(LogLevels.silly, "Received a login request.");
 		// Basic check for existence
 		if (req.body?.me === undefined) {
@@ -153,31 +155,7 @@ authRouter.post(
 					response.headers.get("link") as string
 				);
 
-				endpointsWanted.forEach((endpointWanted) => {
-					const endpoint: string | void = findEndpointInHeaders(
-						linkHeaders,
-						endpointWanted.name
-					);
-					if (endpoint) {
-						if (req.session)
-							set(
-								req.session,
-								`endpoints.${endpointWanted.key}`,
-								endpoint
-							);
-						logger.log(
-							LogLevels.debug,
-							`${endpointWanted.name} endpoint found in Link headers.`,
-							{ user: req.session?.user?.profileUrl }
-						);
-					} else {
-						logger.log(
-							LogLevels.silly,
-							`${endpointWanted.name} endpoint not found in Link headers.`,
-							{ user: req.session?.user?.profileUrl }
-						);
-					}
-				});
+				setEndpointsFromHeaders(req, linkHeaders);
 			}
 
 			// If we don't have all endpoints, make a GET request to parse the document and look for remaining ones
@@ -220,83 +198,13 @@ authRouter.post(
 						}
 
 						const $ = cheerio.load(response.body);
-						endpointsWanted.forEach((endpointWanted) => {
-							if (!req.session?.endpoints?.[endpointWanted.key]) {
-								const endpoint = findEndpointInBody(
-									$,
-									endpointWanted
-								);
-								if (endpoint instanceof Error) throw endpoint;
-								if (req.session) {
-									set(
-										req.session,
-										`endpoints.${endpointWanted.key}`,
-										endpoint
-									);
+						setEndpointsFromBody(req, $);
 
-									logger.log(
-										LogLevels.debug,
-										`${endpointWanted.name} endpoint found in page source.`,
-										{ user: req.session?.user?.profileUrl }
-									);
-								}
-							}
-						});
+						// Sets name and photo in session
+						setProfileDetails(req, response.body);
 
-						logger.log(
-							LogLevels.debug,
-							"Attempting to find a name and photo for the user."
-						);
-
-						const name = parseProperty(
-							response.body,
-							req.session?.user?.discoveryUrl,
-							"h-card",
-							"name"
-						);
-
-						const photo = parseProperty(
-							response.body,
-							req.session?.user?.discoveryUrl,
-							"h-card",
-							"photo"
-						);
-
-						if (req.session) {
-							logger.log(
-								LogLevels.debug,
-								"Saving the name and a URL to the photo for the user to session now.",
-								{
-									user: req.session?.user?.profileUrl,
-									name: name
-										? name[0]
-										: "Did not find any name.",
-									photo: photo
-										? (photo[0] as Image).value
-											? (photo[0] as Image).value
-											: (photo[0] as Image)
-										: "Did not find any photo.",
-								}
-							);
-
-							if (name)
-								set(
-									req.session,
-									"user.microformats.name",
-									name[0]
-								);
-
-							if (photo)
-								set(
-									req.session,
-									"user.microformats.photo",
-									photo
-										? (photo[0] as Image).value
-											? (photo[0] as Image).value
-											: (photo[0] as Image)
-										: undefined
-								);
-						}
+						// Query for Micropub server for its config and save this information.
+						setMicropubCapabilities(req);
 
 						// We have all the endpoints. If we're here, there was no need to parse page source.
 						logger.log(

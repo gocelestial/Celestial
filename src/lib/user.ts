@@ -2,10 +2,12 @@ import fetch from "node-fetch";
 import isIp from "is-ip";
 import { Request as ExpressRequest } from "express";
 import set from "set-value";
+import { Image } from "microformats-parser/dist/types";
 
 import { LogLevels } from "../enumerator/LogLevels";
 
 import { logger } from "./logger";
+import { parseProperty } from "./microformats";
 
 const makeUrl = (url: string): URL => {
 	// Has the user entered any protocol at all - simple check for '://'
@@ -189,4 +191,54 @@ const setTimezone = (req: ExpressRequest): void => {
 	logger.log(LogLevels.info, `User timezone set to ${req.body?.timezone}`);
 };
 
-export { getProfileAndDiscoveryUrls, setTimezone };
+const setProfileDetails = (req: ExpressRequest, document: string): void => {
+	logger.log(
+		LogLevels.debug,
+		"Attempting to find a name and photo for the user."
+	);
+
+	const name = parseProperty(
+		document,
+		req.session?.user?.discoveryUrl,
+		"h-card",
+		"name"
+	);
+
+	const photo = parseProperty(
+		document,
+		req.session?.user?.discoveryUrl,
+		"h-card",
+		"photo"
+	);
+
+	if (req.session) {
+		logger.log(
+			LogLevels.debug,
+			"Saving the name and a URL to the photo for the user to session now.",
+			{
+				user: req.session?.user?.profileUrl,
+				name: name ? name[0] : "Did not find any name.",
+				photo: photo
+					? (photo[0] as Image).value
+						? (photo[0] as Image).value
+						: (photo[0] as Image)
+					: "Did not find any photo.",
+			}
+		);
+
+		if (name) set(req.session, "user.microformats.name", name[0]);
+
+		if (photo)
+			set(
+				req.session,
+				"user.microformats.photo",
+				photo
+					? (photo[0] as Image).value
+						? (photo[0] as Image).value
+						: (photo[0] as Image)
+					: undefined
+			);
+	}
+};
+
+export { getProfileAndDiscoveryUrls, setTimezone, setProfileDetails };
