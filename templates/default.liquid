@@ -14,16 +14,12 @@
 	</head>
 	<body>
 		<header class="page-header">
-			<div class="page-header__title">
-				<h1>
+			<div class="page-header__topbar">
+				<h1 class="page-header__app-title">
 					<a href="/">{{ title }}</a>
 				</h1>
-
-				<h2>{{ pageTitle }}</h2>
-			</div>
-			<div class="page-header__user-info">
-				{% if appState == "User" && userIdentity %}
-
+				<div class="page-header__user-info">
+					{% if appState == "User" && userIdentity %}
 					<p class="page-header__user-identity">
 						<img
 							class="page-header__user-photo"
@@ -32,17 +28,20 @@
 						
 						<span class="page-header__user-name">
 							{% if user.microformats.name %}
-								{{user.microformats.name}}
+							{{user.microformats.name}}
 							{% else %}
-								{{userIdentity}}
+							{{userIdentity}}
 							{% endif %}
 						</span>
 						
 						{% comment %} TODO Dropdown menu to handle user profile page nav with more details, settings (for timezone for example) etc. {% endcomment %}
 						<span>(<a href="/logout/">Logout</a>)</span>
 					</p>
+				</div>
 				{% endif %}
 			</div>
+
+			<h2 class="page-header__page-title">{{ pageTitle }}</h2>
 		</header>
 		<nav role="navigation">
 			{% include 'navigation' %}
