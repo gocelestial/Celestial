@@ -55,18 +55,49 @@
             {% for link in syndicate-to %}
             <div class="publishing-form__syndication-target">
                 <label for="{{link.uid}}">
-                {% if link.user.photo %}
-                {% if link.user.url %}<a href="{{link.user.url}}" rel="noopener noreferrer" target="_blank">{% endif %}
-                    <img src="{{link.user.photo}}" {% if link.user.name %} alt="{{link.user.name}}" {% endif %} />
-                {% if link.user.url %}</a>{% endif %}
-                {% elsif %}
-                {% if link.service.url %}<a href="{{link.service.url}}" rel="noopener noreferrer" target="_blank">{% endif %}
-                    <img src="{{link.service.photo}}" {% if link.service.name %} alt="{{link.service.name}}" {% endif %} />
-                {% if link.service.url %}</a>{% endif %}
-                {% endif %}
-                {{link.name}}
+                    {% if link.user.photo %}
+
+                    {% if link.user.url %}
+                    <a
+                        href="{{link.user.url}}"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                    >
+                    {% endif %}
+                        <img
+                            src="{{link.user.photo}}"
+                            {% if link.user.name %} alt="{{link.user.name}}" {% endif %}
+                        />
+                    {% if link.user.url %}
+                    </a>
+                    {% endif %}
+
+                    {% elsif %}
+
+                    {% if link.service.url %}
+                    <a
+                        href="{{link.service.url}}"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                    >
+                    {% endif %}
+                        <img
+                            src="{{link.service.photo}}"
+                            {% if link.service.name %} alt="{{link.service.name}}" {% endif %}
+                        />
+                    {% if link.service.url %}
+                    </a>
+                    {% endif %}
+                    
+                    {% endif %}
+                    {{link.name}}
                 </label>
-                <input type="checkbox" id="{{link.uid}}" name="mp-syndicate-to" />
+                <input
+                    type="checkbox"
+                    id="{{link.uid}}"
+                    name="mp-syndicate-to"
+                    value="{{link.uid}}"
+                />
             </div>
             {% endfor %}
         </fieldset>

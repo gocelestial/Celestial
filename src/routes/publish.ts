@@ -78,6 +78,9 @@ publishRouter.post(
 	"/note/",
 	urlEncodedParser,
 	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
+		logger.log(LogLevels.http, "Received a publishing request.", {
+			body: req.body,
+		});
 		// Make a POST url encoded request to the micropub endpoint, along with the access token
 		// The date and time we receive are in user's tz
 		// Looking at the source code of Indiekit, we'd like to send the date as an ISO8601 date (any timezone will work as they format it to UTC ultimately - but we'll send it in UTC for hopefully greater interoperability)
@@ -99,6 +102,22 @@ publishRouter.post(
 		params.append("content", req.body.note);
 		params.append("published", published.toString());
 
+		// Can be a string, an emtpy string, or an array of string
+		if (
+			req.body?.["mp-syndicate-to"] &&
+			req.body["mp-syndicate-to"] !== ""
+		) {
+			if (Array.isArray(req.body["mp-syndicate-to"])) {
+				// Is an array
+				for (const target of req.body["mp-syndicate-to"]) {
+					params.append("mp-syndicate-to[]", target);
+				}
+			} else {
+				// Is a string
+				params.append("mp-syndicate-to", req.body["mp-syndicate-to"]);
+			}
+		}
+
 		logger.log(
 			LogLevels.http,
 			"Sending publish request to your Micropub server.",
@@ -106,6 +125,7 @@ publishRouter.post(
 				h: params.get("h"),
 				content: params.get("content"),
 				published: params.get("published"),
+				"mp-syndicate-to": params.getAll("mp-syndicate-to[]"),
 			}
 		);
 
@@ -118,6 +138,7 @@ publishRouter.post(
 			body: params,
 		})
 			.then((response) => {
+				// TODO Handle a 202 response. We expect a 201 response later if we receive a 202.
 				if (!response.ok) {
 					response
 						.json()
@@ -127,6 +148,10 @@ publishRouter.post(
 								"Received an error from the Micropub server.",
 								{ error: responseData }
 							);
+							next({
+								code: "MicropubServerError",
+								message: `${responseData.error} ${responseData?.error_description}`,
+							});
 						})
 						.catch((error) => {
 							logger.log(
@@ -146,6 +171,8 @@ publishRouter.post(
 				if (response.headers.get("Location"))
 					if (req.session)
 						req.session.postLink = response.headers.get("Location");
+				// TODO Set shortlinks and syndication links, show them to the user
+				// https://www.w3.org/TR/2017/REC-micropub-20170523/#response-p-5
 				res.redirect(302, "/publish/success/");
 			})
 			.catch((error: Error | TypeError) => {
