@@ -1,7 +1,7 @@
-{% render 'head' title:title %}
+{% render 'head' %}
 	<body>
 		{% render 'header' title:title, appState:appState, userIdentity:userIdentity, user:user, pageTitle:pageTitle %}
-		{% render 'navigation/publish' appState:appState %}
+		{% render 'navigation/user' %}
 		<main>
 			{% block %}{% endblock %}
 		</main>

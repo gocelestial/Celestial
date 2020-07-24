@@ -1,0 +1,64 @@
+{% layout 'user' %}
+
+<div class="user-profile">
+
+    <div class="user-profile__personal user-personal">
+        <img
+            class="user-personal__photo"
+            src="{% if user.microformats.photo %}{{user.microformats.photo}}{%else%}/img/default-profile-photo.png{%endif%}"
+            alt="{% if user.microformats.name %}{{user.microformats.name}}{%else%}Author{%endif%}'s photo'"
+        />
+
+        <h1 class="user-personal__name">
+            {% if user.microformats.name %}
+            {{user.microformats.name}}
+            {% else %}
+            {{userIdentity}}
+            {% endif %}
+        </h1>
+    </div>
+
+    {% if userDetails and userDetails.endpoints %}
+    <div class="user-profile__details user-endpoints">
+        <table>
+            <thead>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for endpoint in userDetails.endpoints %}
+                {% assign ep = endpoint | split: ','%}
+                <tr>
+                    <td>{{ ep[0] | capitalize }}</td>
+                    <td>{{ ep[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if userDetails and userDetails.indieauth %}
+    <div class="user-profile__details user-indieauth">
+        <table>
+            <thead>
+                <tr>
+                    <th>IndieAuth Property</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for indieauthProperty in userDetails.indieauth %}
+                {% assign iap = indieauthProperty | split: ','%}
+                <tr>
+                    <td>{{ iap[0] | capitalize }}</td>
+                    <td>{{ iap[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>

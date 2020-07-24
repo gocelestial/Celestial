@@ -27,9 +27,10 @@ const redisClient = redis.createClient({
 const app = express();
 
 // Route imports
-import { publishRouter } from "./routes/publish";
 import { authRouter } from "./routes/authentication";
 import { logoutRouter } from "./routes/logout";
+import { publishRouter } from "./routes/publish";
+import { userRouter } from "./routes/user";
 
 // Our interface, enums, libs, etc.
 import { AppUserState } from "./enumerator/AppUserState";
@@ -49,9 +50,12 @@ const directives = {
 	imgSrc: ["'self'", "https://rusingh.com", "https://twemoji.maxcdn.com/"],
 };
 
-// Allow unsafe scripts locally - required for Webpack output to work
-if (process.env.NODE_ENV === "development")
+if (process.env.NODE_ENV === "development") {
+	// Allow unsafe scripts locally - required for Webpack output to work
 	directives.scriptSrc.push("'unsafe-eval'");
+	// Also allow data: images
+	directives.imgSrc.push("data:");
+}
 
 // Employ a CSP
 app.use(
@@ -62,11 +66,11 @@ app.use(
 
 // Setup liquid and views
 const engine = new Liquid({
-	root: __dirname,
+	root: [__dirname, "./views", "./templates", "./includes"],
 	extname: ".liquid",
 });
 app.engine("liquid", engine.express());
-app.set("views", ["./views", "./templates", "./includes"]);
+// app.set("views", []);
 app.set("view engine", "liquid");
 
 // Let Express server assets - CSS, images, etc.
@@ -147,6 +151,8 @@ app.use("/login/", authRouter);
 app.use("/logout/", logoutRouter);
 
 app.use("/publish/", publishRouter);
+
+app.use("/user/", userRouter);
 
 // Generic error handler
 // Currently only handles errors with the code "AppError"

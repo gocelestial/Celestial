@@ -16,11 +16,13 @@
 
 @import "./forms.css";
 
+@import "./user.css";
+
 img.emoji {
 	height: 1em;
-	width: 1em;
-	margin: 0 0.05em 0 0.1em;
+	margin: unset;
 	vertical-align: -0.1em;
+	width: 1em;
 }
 
 .hidden {
