@@ -15,6 +15,7 @@ import { INDIEAUTH_CLIENT } from "../config/constants";
 
 // Our interface, enums, and middleware
 import { AuthPageData } from "../interface/PageData";
+import { IndieAuthToken } from "../interface/IndieAuth";
 
 import { AppUserState } from "../enumerator/AppUserState";
 import { LogLevels } from "../enumerator/LogLevels";
@@ -36,6 +37,7 @@ import { logger } from "../lib/logger";
 import { pageDataHelper } from "../lib/pageDataHelper";
 import { resetEphemeralSessionData } from "../lib/session";
 import { setMicropubCapabilities } from "../lib/micropub";
+import { setAuthData, cleanupAuthData } from "../lib/indieauth";
 
 const authRouter: express.Router = express.Router();
 
@@ -203,9 +205,6 @@ authRouter.post(
 						// Sets name and photo in session
 						setProfileDetails(req, response.body);
 
-						// Query for Micropub server for its config and save this information.
-						setMicropubCapabilities(req);
-
 						// We have all the endpoints. If we're here, there was no need to parse page source.
 						logger.log(
 							LogLevels.debug,
@@ -330,7 +329,12 @@ authRouter.get(
 						{ user: req.session?.user?.profileUrl }
 					);
 
-					if (req.session) req.session.code = req.query.code;
+					if (req.session && !req.session?.indieauth)
+						req.session.indieauth = {};
+
+					if (req.session)
+						req.session.indieauth.code = req.query.code;
+
 					res.redirect(302, "/login/token/");
 				})
 				.catch((error) => {
@@ -380,7 +384,7 @@ authRouter.get(
 			params.append("me", req.session?.user?.profileUrl);
 			params.append("client_id", INDIEAUTH_CLIENT.client_id);
 			params.append("redirect_uri", INDIEAUTH_CLIENT.redirect_uri);
-			params.append("code", req.session?.code);
+			params.append("code", req.session?.indieauth?.code);
 			params.append("grant_type", "authorization_code");
 
 			// Now send a request to get an access token
@@ -392,55 +396,57 @@ authRouter.get(
 				body: params,
 			})
 				.then((response) => response.json())
-				.then(
-					(data: {
-						access_token: string;
-						token_type: string;
-						scope: string;
-						me: string;
-					}) => {
-						if (!data?.access_token) {
-							throw new Error(
-								"We did not receive an access token from the token endpoint."
-							);
-						}
-						if (!data?.token_type) {
-							throw new Error(
-								"We received an access token but not the access token type from the token endpoint."
-							);
-						}
-						if (!data?.scope) {
-							throw new Error(
-								"We received an access token and its type without any scope. This token was issued incorrectly."
-							);
-						}
+				.then((data: IndieAuthToken) => {
+					logger.log(
+						LogLevels.http,
+						"Received a response from the token server.",
+						{ user: req.session?.user?.profileUrl, response: data }
+					);
 
-						logger.log(
-							LogLevels.debug,
-							"Received a valid response from the token server.",
-							{ user: req.session?.user?.profileUrl }
+					if (!data?.access_token) {
+						throw new Error(
+							"We did not receive an access token from the token endpoint."
 						);
-
-						if (req.session) {
-							logger.log(
-								LogLevels.debug,
-								"Setting indieauth properties for the session.",
-								{ user: req.session?.user?.profileUrl }
-							);
-							req.session.code = null;
-							req.session.indieauth = {};
-							req.session.indieauth.access_token =
-								data?.access_token;
-							req.session.indieauth.token_type = data?.token_type;
-							req.session.indieauth.scope = data?.scope;
-
-							// ! loggedIn is ONLY ever set here. This is, for now, a sane way to know if a user is really logged in or not.
-							req.session.isLoggedIn = true;
-							req.session.appState = AppUserState.User;
-						}
-						res.redirect(302, "/");
 					}
-				)
+					if (!data?.token_type) {
+						throw new Error(
+							"We received an access token but not the access token type from the token endpoint."
+						);
+					}
+					if (!data?.scope) {
+						throw new Error(
+							"We received an access token and its type without any scope. This token was issued incorrectly."
+						);
+					}
+
+					logger.log(
+						LogLevels.debug,
+						"Received a valid response from the token server.",
+						{ user: req.session?.user?.profileUrl }
+					);
+
+					cleanupAuthData(req);
+					setAuthData(req, data);
+
+					if (req.session) {
+						// ! loggedIn is ONLY ever set here. This is, for now, a sane way to know if a user is really logged in or not.
+						req.session.isLoggedIn = true;
+						req.session.appState = AppUserState.User;
+
+						// Query for Micropub server for its config and/or syndication targets and save this information.
+						setMicropubCapabilities(req)
+							.then(() => {
+								res.redirect(302, "/");
+							})
+							.catch((error) => {
+								logger.log(
+									LogLevels.error,
+									"Could not set Micropub capabilities.",
+									{ error }
+								);
+							});
+					}
+				})
 				.catch((error) => {
 					next({
 						code: "AppError",
