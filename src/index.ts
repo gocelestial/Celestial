@@ -39,7 +39,7 @@ import { DefaultPageData, UserPageData } from "./interface/PageData";
 import { AppError } from "./interface/AppError";
 
 import { logger } from "./lib/logger";
-import { pageDataHelper } from "./lib/pageDataHelper";
+import { pageDataHelper } from "./lib/helpers";
 import { resetEphemeralSessionData } from "./lib/session";
 
 // Create a CSP

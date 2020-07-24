@@ -34,7 +34,7 @@ import {
 	setEndpointsFromBody,
 } from "../lib/endpoint";
 import { logger } from "../lib/logger";
-import { pageDataHelper } from "../lib/pageDataHelper";
+import { pageDataHelper } from "../lib/helpers";
 import { resetEphemeralSessionData } from "../lib/session";
 import { setMicropubCapabilities } from "../lib/micropub";
 import { setAuthData, cleanupAuthData } from "../lib/indieauth";

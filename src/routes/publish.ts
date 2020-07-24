@@ -13,7 +13,7 @@ import { PostPageData } from "../interface/PageData";
 
 import { urlEncodedParser } from "../middleware/urlEncodedParser";
 
-import { pageDataHelper } from "../lib/pageDataHelper";
+import { pageDataHelper } from "../lib/helpers";
 import { resetEphemeralSessionData } from "../lib/session";
 import { logger } from "../lib/logger";
 import { LogLevels } from "../enumerator/LogLevels";
