@@ -1,4 +1,5 @@
 import { AppUserState } from "../enumerator/AppUserState";
+import { MicropubSyndicationData } from "../interface/Micropub";
 
 /**
  * Virtually all pages should need this data at a minimum. If you find there's something hardly being used, move it to its own PageData interface.
@@ -37,7 +38,8 @@ interface PostPageData extends UserPageData {
 
 	// The following is only applicable to publish success pages.
 	postLink?: string;
-	syndicationLinks?: string[];
+	syndicationLinks?: MicropubSyndicationData;
+	"media-endpoint"?: string;
 }
 
 export { PostPageData, AuthPageData, UserPageData, DefaultPageData };

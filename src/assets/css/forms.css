@@ -1,0 +1,78 @@
+form {
+    & input,
+	& textarea {
+		/* System friendly monospace */
+		font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono",
+			"Droid Sans Mono", "Source Code Pro", monospace;
+	}
+}
+
+.publishing-form {
+	& fieldset {
+		border: none;
+		border-top: 1px solid var(--background-off);
+		margin-bottom: 3.6rem;
+		padding-left: 2.4rem;
+
+		& legend {
+			color: var(--brand-base);
+			font-size: 1.6rem;
+			font-weight: bold;
+			margin-left: -2.4rem;
+			text-transform: uppercase;
+		}
+	}
+
+	& label {
+		font-size: 1.6rem;
+		/* Undo Sakura */
+		margin-bottom: unset;
+	}
+
+	& input {
+		/* Undo Sakura */
+		margin: unset;
+
+		&[type="checkbox"] {
+			padding: unset;
+		}
+	}
+}
+
+.publishing-form__syndication-targets {
+	display: flex;
+	flex-direction: column;
+	gap: 4rem;
+
+	@media (--lg) {
+		flex-direction: row;
+	}
+}
+
+.publishing-form__syndication-target {
+	align-items: center;
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+
+	& label {
+		order: 1;
+	}
+}
+
+.publishing-form__when {
+	display: flex;
+	flex-direction: column;
+	gap: 4rem;
+
+	@media (--lg) {
+		flex-direction: row;
+	}
+}
+
+.publishing-form__when--part {
+	align-items: center;
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+}

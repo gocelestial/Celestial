@@ -6,8 +6,9 @@
 /* Body */
 html {
 	font-size: 62.5%;
+	/* https://css-tricks.com/snippets/css/system-font-stack/ */
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-		"Helvetica Neue", Arial, "Noto Sans", sans-serif;
+		Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 body {
@@ -147,7 +148,7 @@ table {
 td,
 th {
 	padding: 0.5em;
-	border-bottom: 1px solid var(--brand-base)
+	border-bottom: 1px solid var(--brand-base);
 }
 
 /* Buttons, forms and input */
