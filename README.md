@@ -25,7 +25,7 @@ Although spec compliance should ensure it works with any Micropub server, I will
     - [ ] [Update](https://www.w3.org/TR/micropub/#create)
     - [ ] [Delete](https://www.w3.org/TR/micropub/#create)
     - [ ] [Media endpoint](https://www.w3.org/TR/micropub/#media-endpoint)
-    - [ ] [Query server for configuration](https://www.w3.org/TR/micropub/#configuration)
+    - [x] [Query server for configuration](https://www.w3.org/TR/micropub/#configuration)
     - [ ] [Syndication targets](https://www.w3.org/TR/micropub/#syndication-targets)
 - [ ] General resilience tasks
     - [x] Use a logging library like `winston`
