@@ -61,4 +61,26 @@
         </table>
     </div>
     {% endif %}
+
+    {% if userDetails and userDetails.urls %}
+    <div class="user-profile__details user-urls">
+        <table>
+            <thead>
+                <tr>
+                    <th>URL</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for url in userDetails.urls %}
+                {% assign u = url | split: ','%}
+                <tr>
+                    <td>{{ u[0] | capitalize }}</td>
+                    <td>{{ u[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>

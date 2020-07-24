@@ -12,14 +12,18 @@ const userRouter = Router();
 userRouter.get("/profile/", (req: ExpressRequest, res: ExpressResponse) => {
 	const pageData = pageDataHelper(req, {
 		pageTitle: "My Profile",
-        userDetails: {
-            endpoints: req.session?.endpoints,
-            indieauth: {
-                scope: req.session?.indieauth?.scope
-            }
-        }
-    }) as UserPageData;
-    
+		userDetails: {
+			endpoints: req.session?.endpoints,
+			indieauth: {
+				scope: req.session?.indieauth?.scope,
+			},
+			urls: {
+				profile: req.session?.user?.profileUrl,
+				discovery: req.session?.user?.discoveryUrl,
+			},
+		},
+	}) as UserPageData;
+
 	res.render("user/profile", pageData);
 });
 
