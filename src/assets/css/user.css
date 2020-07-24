@@ -22,8 +22,12 @@
         margin-bottom: 2.4rem;
 
 		& thead {
-			background: var(--brand-base);
+			background: var(--gray-300);
 			color: var(--text-color);
+			
+			@media (--dm) {
+				background: var(--gray-700);
+			}
 		}
 
 		& th {
@@ -37,6 +41,15 @@
 				@media (--lg) {
 					width: 70%;
 				}
+			}
+		}
+
+		& td,
+		& th  {
+			border-bottom-color: var(--gray-200);
+			
+			@media (--dm) {
+				border-bottom-color: var(--gray-800);
 			}
 		}
 	}

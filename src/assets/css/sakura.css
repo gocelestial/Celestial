@@ -3,6 +3,10 @@
  * Minimal css theme.
  * Project: https://github.com/oxalorg/sakura/
  */
+* {
+	box-sizing: border-box;
+}
+
 /* Body */
 html {
 	font-size: 62.5%;
@@ -170,6 +174,7 @@ button,
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
+	font-family: inherit;
 	display: inline-block;
 	padding: 6px 18px;
 	text-align: center;

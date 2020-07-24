@@ -5,23 +5,35 @@
         </h1>
         <div class="page-header__user-info">
             {% if appState == "User" && userIdentity %}
-            <p class="page-header__user-identity">
+            <button class="page-header__user-identity">
                 <img
                     class="page-header__user-photo"
                     src="{% if user.microformats.photo %}{{user.microformats.photo}}{%else%}/img/default-profile-photo.png{%endif%}"
                     alt="{% if user.microformats.name %}{{user.microformats.name}}{%else%}Author{%endif%}'s photo'" />
                 
-                <span class="page-header__user-name">
+                <p class="page-header__user-name">
                     {% if user.microformats.name %}
                     {{user.microformats.name}}
                     {% else %}
                     {{userIdentity}}
                     {% endif %}
-                </span>
+                </p>
                 
-                {% comment %} TODO Dropdown menu to handle user profile page nav with more details, settings (for timezone for example) etc. {% endcomment %}
-                <span>(<a href="/logout/">Logout</a>)</span>
-            </p>
+            </button>
+            <nav class="page-header__user-menu user-menu" role="navigation">
+                <a
+                    class="user-menu__link"
+                    href="/user/profile/"
+                >Profile</a>
+                <a
+                    class="user-menu__link"
+                    href="/user/preferences/"
+                >Preferences</a>
+                <a
+                    class="user-menu__link"
+                    href="/logout/"
+                >Logout</a>
+            </nav>
         </div>
         {% endif %}
     </div>

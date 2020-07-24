@@ -1,4 +1,18 @@
 :root {
+	--white: #ffffff;
+	--black: #000000;
+
+	/* 2020-07-24 https://tailwindcss.com/docs/customizing-colors/#default-color-palette */
+	--gray-100: #F7FAFC;
+	--gray-200: #EDF2F7;
+	--gray-300: #E2E8F0;
+	--gray-400: #CBD5E0;
+	--gray-500: #A0AEC0;
+	--gray-600: #718096;
+	--gray-700: #4A5568;
+	--gray-800: #2D3748;
+	--gray-900: #1A202C;
+
 	--background: #f9f9f9;
 	--background-off: #f1f1f1;
 	--text-color: #4a4a4a;
