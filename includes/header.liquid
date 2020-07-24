@@ -1,7 +1,7 @@
 <header class="page-header">
     <div class="page-header__topbar">
-        <h1 class="page-header__app-title">
-            <a href="/">{{ title }}</a>
+        <h1 class="page-header__page-title">
+            {{ pageTitle }}
         </h1>
         <div class="page-header__user-info">
             {% if appState == "User" && userIdentity %}
@@ -37,6 +37,4 @@
         </div>
         {% endif %}
     </div>
-
-    <h2 class="page-header__page-title">{{ pageTitle }}</h2>
 </header>
