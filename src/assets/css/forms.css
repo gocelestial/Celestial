@@ -13,12 +13,14 @@ form {
 		border-top: 1px solid var(--background-off);
 		margin-bottom: 3.6rem;
 		padding-left: 2.4rem;
-
+		padding-top: 1.2rem;
+		
 		& legend {
 			color: var(--brand-base);
 			font-size: 1.6rem;
 			font-weight: bold;
 			margin-left: -2.4rem;
+			padding-top: unset;
 			text-transform: uppercase;
 		}
 	}
@@ -42,10 +44,11 @@ form {
 .publishing-form__syndication-targets {
 	display: flex;
 	flex-direction: column;
-	gap: 4rem;
-
+	gap: 2rem;
+	
 	@media (--lg) {
 		flex-direction: row;
+		gap: 4rem;
 	}
 }
 
@@ -63,10 +66,11 @@ form {
 .publishing-form__when {
 	display: flex;
 	flex-direction: column;
-	gap: 4rem;
-
+	gap: 2rem;
+	
 	@media (--lg) {
 		flex-direction: row;
+		gap: 4rem;
 	}
 }
 
