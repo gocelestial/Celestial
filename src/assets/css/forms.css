@@ -1,5 +1,5 @@
 form {
-    & input,
+	& input,
 	& textarea {
 		/* System friendly monospace */
 		font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono",
@@ -10,14 +10,18 @@ form {
 .publishing-form {
 	& fieldset {
 		border: none;
-		border-top: 1px solid var(--background-off);
+		border-top: 1px solid var(--gray-900);
 		margin-bottom: 3.6rem;
 		padding-left: 2.4rem;
 		padding-top: 1.2rem;
-		
+
+		&media (--dm) {
+			border-top-color: var(--gray-100);
+		}
+
 		& legend {
 			color: var(--brand-base);
-			font-size: 1.6rem;
+			font-size: 1.4rem;
 			font-weight: bold;
 			margin-left: -2.4rem;
 			padding-top: unset;
@@ -26,14 +30,17 @@ form {
 	}
 
 	& label {
-		font-size: 1.6rem;
+		font-size: 1.4rem;
 		/* Undo Sakura */
 		margin-bottom: unset;
 	}
 
-	& input {
+	& input,
+	& textarea {
 		/* Undo Sakura */
 		margin: unset;
+
+		font-size: 1.4rem;
 
 		&[type="checkbox"] {
 			padding: unset;
@@ -41,15 +48,46 @@ form {
 	}
 }
 
+.publishing-form--note {
+	@media (--lg) {
+		display: grid;
+		gap: 0.6em;
+		grid-template-columns: 3fr 1fr;
+		grid-template-rows: auto auto;
+	}
+
+	@media (--xl) {
+		grid-template-columns: 5fr 2fr;
+	}
+}
+
+.publishing-form__content {
+	@media (--lg) {
+		/* Grid item properties */
+		grid-column-start: 1;
+		grid-column-end: 2;
+		grid-row-start: 1;
+		grid-row-end: 3;
+	}
+}
+
 .publishing-form__syndication-targets {
+	@media (--lg) {
+		/* Grid item properties */
+		grid-column-start: 2;
+		grid-column-end: 3;
+		grid-row-start: 2;
+		grid-row-end: 3;
+	}
+
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
-	
-	@media (--lg) {
+
+	/* @media (--lg) {
 		flex-direction: row;
 		gap: 4rem;
-	}
+	} */
 }
 
 .publishing-form__syndication-target {
@@ -64,14 +102,22 @@ form {
 }
 
 .publishing-form__when {
+	@media (--lg) {
+		/* Grid item properties */
+		grid-column-start: 2;
+		grid-column-end: 3;
+		grid-row-start: 1;
+		grid-row-end: 2;
+	}
+
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
-	
-	@media (--lg) {
+
+	/* @media (--lg) {
 		flex-direction: row;
 		gap: 4rem;
-	}
+	} */
 }
 
 .publishing-form__when--part {
@@ -79,4 +125,15 @@ form {
 	display: flex;
 	flex-direction: row;
 	gap: 1rem;
+
+	@media (--lg) {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+/* .publishing-form__button {} */
+
+.publishing-form__button--submit {
+	width: max-content;
 }

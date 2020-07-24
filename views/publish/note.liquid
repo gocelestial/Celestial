@@ -4,110 +4,111 @@
     <p class="notification notification--error">An error occured: {{ error }}</p>
 {% endif %}
 
-<div class="publishing-form publishing-form--note">
-    <form action="/publish/note/" method="post">
+<form
+    class="publishing-form publishing-form--note"
+    action="/publish/note/"
+    method="post"
+>
+    <fieldset class="publishing-form__when">
+        <legend>Local date time&nbsp;</legend>
 
-        <fieldset class="publishing-form__when">
-            <legend>Local date time&nbsp;</legend>
+        <div
+            class="publishing-form__when--part publishing-form__when--date"
+        >
+            <label for="date">Date:</label>
+            <input
+                id="date"
+                name="date"
+                type="date"
+                value={{formDefaults.published.date}}
+            />
+        </div>
 
-            <div
-                class="publishing-form__when--part publishing-form__when--date"
-            >
-                <label for="date">Date:</label>
-                <input
-                    id="date"
-                    name="date"
-                    type="date"
-                    value={{formDefaults.published.date}}
-                />
-            </div>
+        <div
+            class="publishing-form__when--part publishing-form__when--time"
+        >
+            <label for="time">Time:</label>
+            <input
+                id="time"
+                name="time"
+                type="time"
+                value={{formDefaults.published.time}}
+            />
+        </div>
+    </fieldset>
 
-            <div
-                class="publishing-form__when--part publishing-form__when--time"
-            >
-                <label for="time">Time:</label>
-                <input
-                    id="time"
-                    name="time"
-                    type="time"
-                    value={{formDefaults.published.time}}
-                />
-            </div>
-        </fieldset>
+    <fieldset class="publishing-form__content">
+        <legend>Your content&nbsp;</legend>
 
-        <fieldset class="publishing-form__content">
-            <legend>Your content&nbsp;</legend>
+        <label for="note">Note:</label>
+        <textarea name="note" id="note" cols="30" rows="16" placeholder="Your note..." required></textarea>
 
-            <label for="note">Note:</label>
-            <textarea name="note" id="note" cols="30" rows="10" placeholder="Your note..."></textarea>
-
-            {% if media-endpoint %}
-            <label for="media-endpoint">Attach a file:</label>
-            <input type="file" id="media-endpoint" name="file">
-            {% endif %}
-        </fieldset>
-        
-
-        {% if syndicate-to %}
-        <fieldset class="publishing-form__syndication-targets">
-            <legend>Syndicate to&nbsp;</legend>
-
-            {% for link in syndicate-to %}
-            <div class="publishing-form__syndication-target">
-                <label for="{{link.uid}}">
-                    {% if link.user.photo %}
-
-                    {% if link.user.url %}
-                    <a
-                        href="{{link.user.url}}"
-                        rel="noopener noreferrer"
-                        target="_blank"
-                    >
-                    {% endif %}
-                        <img
-                            src="{{link.user.photo}}"
-                            {% if link.user.name %} alt="{{link.user.name}}" {% endif %}
-                        />
-                    {% if link.user.url %}
-                    </a>
-                    {% endif %}
-
-                    {% elsif %}
-
-                    {% if link.service.url %}
-                    <a
-                        href="{{link.service.url}}"
-                        rel="noopener noreferrer"
-                        target="_blank"
-                    >
-                    {% endif %}
-                        <img
-                            src="{{link.service.photo}}"
-                            {% if link.service.name %} alt="{{link.service.name}}" {% endif %}
-                        />
-                    {% if link.service.url %}
-                    </a>
-                    {% endif %}
-                    
-                    {% endif %}
-                    {{link.name}}
-                </label>
-                <input
-                    type="checkbox"
-                    id="{{link.uid}}"
-                    name="mp-syndicate-to"
-                    value="{{link.uid}}"
-                />
-            </div>
-            {% endfor %}
-        </fieldset>
+        {% if media-endpoint %}
+        <label for="media-endpoint">Attach a file:</label>
+        <input type="file" id="media-endpoint" name="file">
         {% endif %}
+    </fieldset>
+    
 
-    
-        <input type="hidden" name="h" value="entry">
-    
-        <button type="submit">Create note</button>
-    
-    </form>
-</div>
+    {% if syndicate-to %}
+    <fieldset class="publishing-form__syndication-targets">
+        <legend>Syndicate to&nbsp;</legend>
+
+        {% for link in syndicate-to %}
+        <div class="publishing-form__syndication-target">
+            <label for="{{link.uid}}">
+                {% if link.user.photo %}
+
+                {% if link.user.url %}
+                <a
+                    href="{{link.user.url}}"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                >
+                {% endif %}
+                    <img
+                        src="{{link.user.photo}}"
+                        {% if link.user.name %} alt="{{link.user.name}}" {% endif %}
+                    />
+                {% if link.user.url %}
+                </a>
+                {% endif %}
+
+                {% elsif %}
+
+                {% if link.service.url %}
+                <a
+                    href="{{link.service.url}}"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                >
+                {% endif %}
+                    <img
+                        src="{{link.service.photo}}"
+                        {% if link.service.name %} alt="{{link.service.name}}" {% endif %}
+                    />
+                {% if link.service.url %}
+                </a>
+                {% endif %}
+                
+                {% endif %}
+                {{link.name}}
+            </label>
+            <input
+                type="checkbox"
+                id="{{link.uid}}"
+                name="mp-syndicate-to"
+                value="{{link.uid}}"
+            />
+        </div>
+        {% endfor %}
+    </fieldset>
+    {% endif %}
+
+
+    <input type="hidden" name="h" value="entry">
+
+    <button type="submit" class="publishing-form__button publishing-form__button--submit">Create note</button>
+
+</form>
 
