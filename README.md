@@ -22,11 +22,14 @@ Although spec compliance should ensure it works with any Micropub server, I will
 - [ ] Micropub spec compliance
     - [x] [Endpoint discovery](https://www.w3.org/TR/micropub/#endpoint-discovery)
     - [ ] [Create](https://www.w3.org/TR/micropub/#create)
+        - [x] `application/x-www-form-urlencoded`
+        - [ ] `form/multipart`
+        - [ ] `JSON`
     - [ ] [Update](https://www.w3.org/TR/micropub/#create)
     - [ ] [Delete](https://www.w3.org/TR/micropub/#create)
     - [ ] [Media endpoint](https://www.w3.org/TR/micropub/#media-endpoint)
     - [x] [Query server for configuration](https://www.w3.org/TR/micropub/#configuration)
-    - [ ] [Syndication targets](https://www.w3.org/TR/micropub/#syndication-targets)
+    - [x] [Syndication targets](https://www.w3.org/TR/micropub/#syndication-targets)
 - [ ] General resilience tasks
     - [x] Use a logging library like `winston`
         - [ ] Set up with a transport such as [timber.io](https://timber.io)
