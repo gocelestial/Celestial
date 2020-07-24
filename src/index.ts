@@ -90,13 +90,18 @@ app.use(
 );
 
 // Set appState for this session
-// TODO This feels very hacky. Surely there is a better way to "reload" a session upon a re-visit?
 app.use(
 	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
-		if (req.session?.isLoggedIn) {
+		if (
+			req.session?.indieauth?.access_token &&
+			req.session?.endpoints?.micropub &&
+			req.session?.endpoints?.token
+		) {
+			// This is the least amount of data we need for the core functionality to work (publishing data to Micropub server and logging out).
+			// If there are errors elsewhere due to a lack of data, they should be handled in that route and presented to the user.
 			logger.log(
-				LogLevels.verbose,
-				"User appears to be already logged in as per our session data. Setting appState to 'User'."
+				LogLevels.debug,
+				`User appears to be already logged in as per our session data. Setting appState to ${AppUserState.User}.`
 			);
 			req.session.appState = AppUserState.User;
 		}

@@ -429,8 +429,6 @@ authRouter.get(
 					setAuthData(req, data);
 
 					if (req.session) {
-						// ! loggedIn is ONLY ever set here. This is, for now, a sane way to know if a user is really logged in or not.
-						req.session.isLoggedIn = true;
 						req.session.appState = AppUserState.User;
 
 						// Query for Micropub server for its config and/or syndication targets and save this information.
