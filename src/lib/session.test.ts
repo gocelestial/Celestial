@@ -1,4 +1,4 @@
-import { resetEphemeralSessionData } from '../session';
+import { resetEphemeralSessionData } from './session';
 
 const session = {
     foo: 'bar',
