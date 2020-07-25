@@ -97,3 +97,9 @@ The Dockerfile is designed to only run on Linux hosts -- it uses a bind mount.
 * `nvm use && npm install` - Install packages locally for now. This will not be required in the future, if and when I figure out how `node_modules` need to work in a Docker environment. PRs welcome.
 * `docker-compose up`
 * ~~`docker container exec splisher_web_1 npm install`~~
+
+### Running Tests
+
+```
+npm test
+```

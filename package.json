@@ -10,7 +10,7 @@
   "scripts": {
     "start": "gulp development",
     "prod": "gulp production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -33,6 +33,7 @@
     "@babel/core": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
     "@types/body-parser": "^1.19.0",
     "@types/cheerio": "^0.22.21",
     "@types/connect-redis": "0.0.14",
@@ -42,6 +43,7 @@
     "@types/got": "^9.6.11",
     "@types/helmet": "0.0.47",
     "@types/http-link-header": "^1.0.1",
+    "@types/jest": "^26.0.7",
     "@types/luxon": "^1.24.2",
     "@types/node-fetch": "^2.5.7",
     "@types/react": "^16.9.43",
@@ -88,6 +90,7 @@
   },
   "devDependencies": {
     "gulp-imagemin": "^7.1.0",
+    "jest": "^26.1.0",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5"
   },
