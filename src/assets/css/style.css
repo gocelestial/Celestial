@@ -2,6 +2,8 @@
 
 @import "./colors.css";
 
+@import "./variables.css";
+
 @import "./media-queries.css";
 
 @import "./sakura.css";

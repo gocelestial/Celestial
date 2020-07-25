@@ -1,22 +1,27 @@
 form {
 	& input,
 	& textarea {
-		/* System friendly monospace */
-		font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono",
-			"Droid Sans Mono", "Source Code Pro", monospace;
-	}
-}
+		/* Undo Sakura */
+		margin: unset;
 
-.publishing-form {
+		font-family: var(--sans-serif-family);
+		font-size: 1.6rem;
+
+		&[type="checkbox"] {
+			padding: unset;
+			margin-bottom: unset;
+		}
+	}
+
 	& fieldset {
 		border: none;
-		border-top: 1px solid var(--gray-900);
+		border-top: 1px solid var(--gray-300);
 		margin-bottom: 3.6rem;
 		padding-left: 2.4rem;
 		padding-top: 1.2rem;
 
 		&media (--dm) {
-			border-top-color: var(--gray-100);
+			border-top-color: var(--gray-800);
 		}
 
 		& legend {
@@ -33,18 +38,6 @@ form {
 		font-size: 1.4rem;
 		/* Undo Sakura */
 		margin-bottom: unset;
-	}
-
-	& input,
-	& textarea {
-		/* Undo Sakura */
-		margin: unset;
-
-		font-size: 1.4rem;
-
-		&[type="checkbox"] {
-			padding: unset;
-		}
 	}
 }
 
@@ -83,11 +76,6 @@ form {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
-
-	/* @media (--lg) {
-		flex-direction: row;
-		gap: 4rem;
-	} */
 }
 
 .publishing-form__syndication-target {
@@ -113,11 +101,6 @@ form {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
-
-	/* @media (--lg) {
-		flex-direction: row;
-		gap: 4rem;
-	} */
 }
 
 .publishing-form__when--part {
