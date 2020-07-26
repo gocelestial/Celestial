@@ -2,12 +2,14 @@ import fetch from "node-fetch";
 import isIp from "is-ip";
 import { Request as ExpressRequest } from "express";
 import set from "set-value";
+import { timeZonesNames } from "@vvo/tzdb";
 import { Image } from "microformats-parser/dist/types";
 
 import { LogLevels } from "../enumerator/LogLevels";
 
 import { logger } from "./logger";
 import { parseProperty } from "./microformats";
+import { FormEncoding } from "../enumerator/FormEncoding";
 
 const makeUrl = (url: string): URL => {
 	// Has the user entered any protocol at all - simple check for '://'
@@ -186,10 +188,6 @@ const getProfileAndDiscoveryUrls = (
 /**
  * @param req Make sure the request body has timezone property available. If not, the timezone will be set to undefined.
  */
-const setTimezone = (req: ExpressRequest): void => {
-	if (req.session) set(req.session, "user.timezone", req.body?.timezone);
-	logger.log(LogLevels.info, `User timezone set to ${req.body?.timezone}`);
-};
 
 const setProfileDetails = (req: ExpressRequest, document: string): void => {
 	logger.log(
@@ -241,4 +239,62 @@ const setProfileDetails = (req: ExpressRequest, document: string): void => {
 	}
 };
 
-export { getProfileAndDiscoveryUrls, setTimezone, setProfileDetails };
+/**
+ * @param key Do not use a key which includes a hyphen or any such characters making usage of dot notation errant/impossible.
+ */
+const setUserPreference = (
+	req: ExpressRequest,
+	key: string,
+	value: any
+): void => {
+	if (req.session) {
+		set(req.session, `user.preferences.${key}`, value);
+
+		logger.log(LogLevels.verbose, `User preferences updated.`, {
+			[key]: value,
+		});
+	}
+};
+
+const areAllPreferencesValid = (req: ExpressRequest): boolean => {
+	let isValidEncoding = false,
+		isValidTimezone = false;
+	if (req.body?.["form-encoding"]) {
+		// Validate the form encoding value received
+		// https://stackoverflow.com/a/39372911/2464435
+		Object.values(FormEncoding).forEach((encoding) => {
+			if (encoding === req.body["form-encoding"]) {
+				isValidEncoding = true;
+				logger.log(
+					LogLevels.debug,
+					"Form encoding preference validated",
+					{ user: req.session?.user?.profileUrl }
+				);
+			}
+		});
+	}
+
+	if (req.body?.["user-timezone"]) {
+		// Validate the timezone received
+		isValidTimezone = Array.prototype.some.call(
+			timeZonesNames,
+			(tzName: string) => tzName === req.body["user-timezone"]
+		);
+
+		if (isValidTimezone)
+			logger.log(LogLevels.debug, "Timezone preference validated", {
+				user: req.session?.user?.profileUrl,
+			});
+	}
+
+	if (isValidEncoding && isValidTimezone) return true;
+
+	return false;
+};
+
+export {
+	areAllPreferencesValid,
+	getProfileAndDiscoveryUrls,
+	setProfileDetails,
+	setUserPreference,
+};

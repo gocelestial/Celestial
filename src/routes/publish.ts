@@ -6,7 +6,7 @@ import {
 } from "express";
 import fetch from "node-fetch";
 import { DateTime } from "luxon";
-import getType from "post-type-discovery";
+// import getType from "post-type-discovery";
 
 // Our interface, enums, middleware, libs
 import { PostPageData } from "../interface/PageData";

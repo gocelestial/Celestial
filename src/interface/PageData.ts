@@ -1,4 +1,5 @@
 import { AppUserState } from "../enumerator/AppUserState";
+import { FormEncoding } from "../enumerator/FormEncoding";
 import { MicropubSyndicationData } from "../interface/Micropub";
 
 /**
@@ -25,6 +26,16 @@ interface UserPageData extends DefaultPageData {
 			name?: string;
 			photo?: string;
 		};
+		preferences?: {
+			formEncoding: FormEncoding;
+			timezone: string;
+		};
+	};
+}
+
+interface PreferencesPageData extends UserPageData {
+	formDefaults?: {
+		timezones?: Array<string>;
 	};
 }
 
@@ -42,4 +53,10 @@ interface PostPageData extends UserPageData {
 	"media-endpoint"?: string;
 }
 
-export { PostPageData, AuthPageData, UserPageData, DefaultPageData };
+export {
+	PostPageData,
+	AuthPageData,
+	UserPageData,
+	DefaultPageData,
+	PreferencesPageData,
+};

@@ -25,8 +25,8 @@ import { urlEncodedParser } from "../middleware/urlEncodedParser";
 
 import {
 	getProfileAndDiscoveryUrls,
-	setTimezone,
 	setProfileDetails,
+	setUserPreference
 } from "../lib/user";
 import {
 	endpointsWanted,
@@ -38,6 +38,7 @@ import { pageDataHelper } from "../lib/helpers";
 import { resetEphemeralSessionData } from "../lib/session";
 import { setMicropubCapabilities } from "../lib/micropub";
 import { setAuthData, cleanupAuthData } from "../lib/indieauth";
+import { FormEncoding } from "../enumerator/FormEncoding";
 
 const authRouter: express.Router = express.Router();
 
@@ -95,8 +96,8 @@ authRouter.post(
 			});
 		}
 
-		// TODO Let them select this explicity in a config area if they're not happy with assumed timezone, or simply want to change it temporarily.
-		if (req.session && req.body?.timezone) setTimezone(req);
+		setUserPreference(req, 'timezone', req.body.timezone);
+		setUserPreference(req, 'formEncoding', FormEncoding.URLEncoded);
 
 		try {
 			logger.log(
