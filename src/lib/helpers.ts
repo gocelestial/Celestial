@@ -12,10 +12,10 @@ import {
 /**
  * Currently, the app title, subtitle, app state, and user identity is set by default. You may pass these in as well in case you wish to overwrite the defaults.
  */
-const pageDataHelper = function (
+const pageDataHelper = (
 	req: ExpressRequest,
 	data: object
-): DefaultPageData | PostPageData | AuthPageData | UserPageData {
+): DefaultPageData | PostPageData | AuthPageData | UserPageData => {
 	return Object.assign(
 		{},
 		{
@@ -28,7 +28,11 @@ const pageDataHelper = function (
 					photo: req.session?.user?.microformats?.photo,
 				},
 				indieauth: {
-					identity: req.session?.user?.profileUrl || null,
+					identity: req.session?.user?.profileUrl,
+				},
+				preferences: {
+					timezone: req.session?.user?.preferences?.timezone,
+					formEncoding: req.session?.user?.preferences?.formEncoding,
 				},
 			},
 		},
@@ -36,4 +40,11 @@ const pageDataHelper = function (
 	);
 };
 
-export { pageDataHelper };
+/**
+ * @param enum {any} TypeScript doesn't allow specifying a parameter type as enum. Be sure of what you're passing in.
+ */
+const enumValuesAsArray = (enumerator: any): Array<string> => {
+	return Object.values(enumerator).map((e: string) => e);
+};
+
+export { pageDataHelper, enumValuesAsArray };

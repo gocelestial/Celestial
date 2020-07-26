@@ -1,22 +1,27 @@
-form {
+.form {
 	& input,
 	& textarea {
-		/* System friendly monospace */
-		font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono",
-			"Droid Sans Mono", "Source Code Pro", monospace;
-	}
-}
+		/* Undo Sakura */
+		margin: unset;
 
-.publishing-form {
+		font-family: var(--sans-serif-family);
+		font-size: 1.6rem;
+
+		&[type="checkbox"] {
+			padding: unset;
+			margin-bottom: unset;
+		}
+	}
+
 	& fieldset {
 		border: none;
-		border-top: 1px solid var(--gray-900);
-		margin-bottom: 3.6rem;
+		border-top: 1px solid var(--gray-300);
+		margin-bottom: 2.4rem;
 		padding-left: 2.4rem;
 		padding-top: 1.2rem;
 
 		&media (--dm) {
-			border-top-color: var(--gray-100);
+			border-top-color: var(--gray-800);
 		}
 
 		& legend {
@@ -35,20 +40,20 @@ form {
 		margin-bottom: unset;
 	}
 
-	& input,
-	& textarea {
-		/* Undo Sakura */
-		margin: unset;
-
+	& p.form__aria-descriptionto,
+	& p.form__fieldset-description {
+		color: var(--gray-600);
 		font-size: 1.4rem;
-
-		&[type="checkbox"] {
-			padding: unset;
-		}
+		font-weight: normal;
+		margin-bottom: 1em;
 	}
 }
 
-.publishing-form--note {
+.form__field-group {
+	margin-bottom: 0.6em;
+}
+
+.form--publishing {
 	@media (--lg) {
 		display: grid;
 		gap: 0.6em;
@@ -57,7 +62,7 @@ form {
 	}
 
 	@media (--xl) {
-		grid-template-columns: 5fr 2fr;
+		grid-template-columns: 7fr 3fr;
 	}
 }
 
@@ -83,11 +88,6 @@ form {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
-
-	/* @media (--lg) {
-		flex-direction: row;
-		gap: 4rem;
-	} */
 }
 
 .publishing-form__syndication-target {
@@ -113,11 +113,6 @@ form {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
-
-	/* @media (--lg) {
-		flex-direction: row;
-		gap: 4rem;
-	} */
 }
 
 .publishing-form__when--part {

@@ -38,8 +38,8 @@
 
 	/* Element properties */
 	align-items: center;
-	background: var(--gray-800);
-	border-color: var(--gray-800);
+	background: var(--gray-300);
+	border-color: var(--gray-300);
 	border-radius: 0.4em;
 	display: flex;
 	flex-direction: row;
@@ -73,16 +73,16 @@
 }
 
 .user-menu__link {
-	background: var(--gray-800);
+	background: var(--gray-300);
 	border-radius: 0.4em;
-	color: var(--white);
+	color: var(--black);
 	font-size: 1.4rem;
 	font-weight: bold;
 	padding: 0.6em 1.8em;
 
 	&:hover {
 		background: var(--brand-complement);
-		color: var(--white);
+		color: var(--black);
 
 		@media (--dm) {
 			color: var(--black);

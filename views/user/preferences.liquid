@@ -1,0 +1,56 @@
+{% layout 'user' %}
+
+<div class="user-preferences">
+    <form
+        action="/user/preferences/"
+        method="POST"
+        class="user-preferences__form form form--user-preferences user-preferences-form"
+        enctype="application/x-www-form-urlencoded"
+    >
+        <fieldset>
+            <legend>Publishing</legend>
+
+            {% if formDefaults.encodings | size %}
+            <div class="form__field-group">
+                <label for="form-encoding">Form submission encoding:</label>
+                <p class="form__aria-descriptionto" id="form-encoding-description">If this seems too technical for you, please do not change this setting. We will handle the encoding as required by all the supported post types. You do not need to change this.</p>
+                <select
+                    id="form-encoding"
+                    name="form-encoding"
+                    class="user-preferences-form__form-encoding"
+                    aria-describedby="form-encoding-description"
+                    required
+                >
+                    {% for encoding in formDefaults.encodings %}
+                    <option
+                        value="{{encoding}}"
+                        {% if user.preferences.formEncoding and encoding == user.preferences.formEncoding %}selected{% endif %}
+                    >{{encoding}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            {% if formDefaults.timezones | size %}
+            <div class="form__field-group">
+                <label for="form-encoding">Timezone:</label>
+                <p class="form__aria-descriptionto" id="timezone-description">A timezone was automatically set for you upon login. However, due to differences between browsers, sometimes we may not be able to pick one for you. If you would like to select one manually, please do so below.</p>
+                <select
+                    id="user-timezone"
+                    name="user-timezone"
+                    class="user-preferences-form__timezone"
+                    aria-describedby="timezone-description"
+                    required
+                >
+                    {% for tz in formDefaults.timezones %}
+                    <option value="{{tz}}" {% if user.preferences.timezone and user.preferences.timezone == tz %}selected{% endif %}>{{tz}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+        </fieldset>
+
+        <button type="submit">Update preferences</button>
+
+    </form>
+</div>

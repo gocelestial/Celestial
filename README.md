@@ -36,7 +36,8 @@ Although spec compliance should ensure it works with any Micropub server, I will
     - [ ] Modular codebase
     - [ ] Best practices
     - [ ] [Express security checklist](https://expressjs.com/en/advanced/best-practice-security.html)
-    - [ ] Unit tests
+    - [ ] [Redis security checklist](https://redis.io/topics/security)
+    - [ ] Unit testing
 - [ ] [Types of posts](https://indieweb.org/posts#Types_of_Posts) to be supported:
     - [ ] 📄 [Article](https://indieweb.org/article)
     - [ ] 📔 [Note](https://indieweb.org/note)

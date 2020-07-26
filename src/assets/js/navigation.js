@@ -10,6 +10,7 @@ const activeNavigation = () => {
 
 const userMenu = () => {
 	const menuToggle = document.querySelector(".page-header__user-identity");
+	if (!menuToggle) return;
 
 	const eventHandler = () =>
 		document

@@ -5,12 +5,14 @@
 {% endif %}
 
 <form
-    class="publishing-form publishing-form--note"
+    class="form form--publishing publishing-form"
     action="/publish/note/"
+    enctype="{{ user.preferences.formEncoding }}"
     method="post"
 >
     <fieldset class="publishing-form__when">
         <legend>Local date time&nbsp;</legend>
+        <p class="form__fieldset-description" id="form__fieldset-description--timezone-warning">Although we have likely set the correct timezone for you, please check the preferences and update it if required before publishing.</p>
 
         <div
             class="publishing-form__when--part publishing-form__when--date"
@@ -21,6 +23,7 @@
                 name="date"
                 type="date"
                 value={{formDefaults.published.date}}
+                aria-describedby="form__fieldset-description--timezone-warning"
             />
         </div>
 
@@ -33,6 +36,7 @@
                 name="time"
                 type="time"
                 value={{formDefaults.published.time}}
+                aria-describedby="form__fieldset-description--timezone-warning"
             />
         </div>
     </fieldset>
@@ -53,6 +57,8 @@
     {% if syndicate-to %}
     <fieldset class="publishing-form__syndication-targets">
         <legend>Syndicate to&nbsp;</legend>
+
+        <p class="form__fieldset-description" id="form__fieldset-description--syndication-warning">You may need to <a href="https://webmention.app/" target="_blank" rel="noopener noreferrer">send webmetions manually</a>, as not all Micropub servers do this for you.</p>
 
         {% for link in syndicate-to %}
         <div class="publishing-form__syndication-target">
