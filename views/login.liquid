@@ -23,13 +23,19 @@
 <p class="notification notification--error">An error occured: {{ error }}</p>
 {% endif %}
 
-<form action="/login/try/" method="post" enctype="application/x-www-form-urlencoded">
+<form
+	action="/login/try/"
+	method="post"
+	enctype="application/x-www-form-urlencoded"
+	class="form form--login login-form"
+>
 
 	<label for="url">Web Address:</label>
 	<input
 		id="url"
 		name="me"
 		placeholder="https://yourdomain.com"
+		class="login-form__web-address"
 		type="url"
 		autocomplete="on"
 		autofocus
@@ -41,6 +47,6 @@
 	<input name="_csrf" type="hidden" value="{{ csrfToken }}" />
 
 	{% comment %} Collect user tz at the time of sign in and store it. {% endcomment %}
-	<input type="hidden" name="timezone" value="" />
+	<input type="hidden" name="timezone" class="login-form__timezone" value="" />
 	
 </form>
