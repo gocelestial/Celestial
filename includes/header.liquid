@@ -3,8 +3,8 @@
         <h1 class="page-header__page-title">
             {{ pageTitle }}
         </h1>
+        {% if appState == "User" && userIdentity %}
         <div class="page-header__user-info">
-            {% if appState == "User" && userIdentity %}
             <button class="page-header__user-identity">
                 <img
                     class="page-header__user-photo"
