@@ -1,4 +1,4 @@
-form {
+.form {
 	& input,
 	& textarea {
 		/* Undo Sakura */
@@ -16,7 +16,7 @@ form {
 	& fieldset {
 		border: none;
 		border-top: 1px solid var(--gray-300);
-		margin-bottom: 3.6rem;
+		margin-bottom: 2.4rem;
 		padding-left: 2.4rem;
 		padding-top: 1.2rem;
 
@@ -39,9 +39,21 @@ form {
 		/* Undo Sakura */
 		margin-bottom: unset;
 	}
+
+	& p.form__aria-descriptionto,
+	& p.form__fieldset-description {
+		color: var(--gray-600);
+		font-size: 1.4rem;
+		font-weight: normal;
+		margin-bottom: 1em;
+	}
 }
 
-.publishing-form--note {
+.form__field-group {
+	margin-bottom: 0.6em;
+}
+
+.form--publishing {
 	@media (--lg) {
 		display: grid;
 		gap: 0.6em;
@@ -50,7 +62,7 @@ form {
 	}
 
 	@media (--xl) {
-		grid-template-columns: 5fr 2fr;
+		grid-template-columns: 7fr 3fr;
 	}
 }
 
