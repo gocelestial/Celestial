@@ -29,7 +29,8 @@ module.exports = {
 
 	/* Strict Type-Checking Options */
 	strict: true /* Enable all strict type-checking options. */,
-	// "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
+	// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/46339
+	"noImplicitAny": false,                 /* Raise error on expressions and declarations with an implied 'any' type. */
 	// "strictNullChecks": true,              /* Enable strict null checks. */
 	// "strictFunctionTypes": true,           /* Enable strict checking of function types. */
 	// "strictBindCallApply": true,           /* Enable strict 'bind', 'call', and 'apply' methods on functions. */
